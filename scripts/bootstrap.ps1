@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  补齐 MediaVault 目录结构，并提示启动 Docker Compose。
+  补齐 MediaVault 目录结构。
 #>
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
@@ -20,6 +20,7 @@ $dirs = @(
   "cache",
   "blobs",
   "generated",
+  "presets",
   "docs",
   "scripts"
 )
@@ -41,11 +42,11 @@ foreach ($d in $dirs) {
 
 if (-not (Test-Path (Join-Path $Root ".env")) -and (Test-Path (Join-Path $Root ".env.example"))) {
   Write-Host ""
-  Write-Host "提示：可复制 .env.example 为 .env 修改端口（MV_HOST_PORT）。" -ForegroundColor Yellow
+  Write-Host "提示：可复制 .env.example 为 .env 并修改 MV_HOST_PORT。" -ForegroundColor Yellow
 }
 
 Write-Host ""
 Write-Host "下一步：" -ForegroundColor Green
 Write-Host "  .\scripts\start.ps1"
 Write-Host "  浏览器打开 http://localhost:9999"
-Write-Host "  添加库路径 /data/primary 与 /data/alternate （见 docs\setup.md）"
+Write-Host "  添加库路径 /data/primary 与 /data/alternate （见 presets\libraries.json.example）"

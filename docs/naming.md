@@ -1,54 +1,34 @@
 # 命名规范
 
-目标：文件名便于元数据索引器识别，减少手工改名。
+目标：目录与文件名**中性、可分享到私有 Git**，同时方便编目与刮削匹配。
 
-## primary — 亚洲成片（`library/primary/asia/`）
+## 分区
 
-优先用 **出品编号**，常见写法保留连字符：
+| 分区 | 相对路径 | 说明 |
+|------|----------|------|
+| A 向 | `library/primary/asia` | 亚洲成片、有稳定出品编号的内容优先 |
+| A 向 | `library/primary/western` | 欧美主流厂牌 |
+| A 向 | `library/primary/indie` | 独立 / 业余 / 未归厂 |
+| B 向 | `library/alternate/studios` | 明确厂牌成片 |
+| B 向 | `library/alternate/western` | 欧美 alternate 线 |
+| B 向 | `library/alternate/indie` | 独立 / 业余 |
+| 投递 | `library/_inbox` | 尚未决定分区时暂存 |
 
-```
-ABCD-001.mp4
-WXYZ-123.mp4
-```
+## 文件名建议
 
-可选：编号后附加标题：
+1. **有出品编号**：`厂牌或系列代码-编号` + 可选标题短句，例如 `ABCD-123 Title Words.mp4`。
+2. **厂牌场景盘**：`StudioName - Scene Title (YYYY-MM-DD).mp4`。
+3. 避免空格过多时可用 `_` 或 `.`；保持 ASCII 为主，便于跨系统。
+4. 不要在文件名里写下载站域名、分辨率堆砌无意义前缀（可放在后面：`... 1080p.mp4`）。
 
-```
-ABCD-001_Title.mp4
-```
+## 标签（Tags）建议
 
-避免：无意义前缀、多部挤在一个文件名、随意删掉连字符（部分索引器能容错，但不稳）。
+在 UI 里用中性标签区分分区策略，例如：
 
-## primary — 欧美 / 独立（`western/` `indie/`）
+- `zone:primary` / `zone:alternate`
+- `region:asia` / `region:western`
+- `type:studio` / `type:indie`
 
-```
-Studio - YYYY-MM-DD - Scene Title.mp4
-Studio - Scene Title.mp4
-```
+## 禁止事项（仓库文本）
 
-有官方场景页时，在编目 UI 填 URL 再拉取元数据，通常比纯文件名更准。
-
-## alternate — 厂牌成片（`library/alternate/studios/` 等）
-
-```
-Studio - YYYY-MM-DD - Title.mp4
-Studio - Title.mp4
-```
-
-整部作品：
-
-```
-Studio - Movie Title (YYYY).mp4
-```
-
-索引器多依赖 **URL** 或「厂牌 + 日期 + 标题」；文件名带齐这三项可提高命中率。
-
-## 投递区 `_inbox/`
-
-下载完成后先放这里，**整理进 primary/ 或 alternate/ 后再扫描**，避免半成品进库。
-
-## 通用
-
-- 一场景一文件；合集请拆开或标明分集。
-- 避开 `? * < > |` 等特殊字符。
-- 扩展名小写：`.mp4` `.mkv`。
+提交前跑 `scripts/sanity-check.ps1`。不要在**文件名、文件夹名、README 标题、compose 服务名**中使用敏感题材词；上游技术名只允许以 Base64 出现在脚本中。

@@ -1,11 +1,8 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  从社区元数据仓库拉取精选 providers 到 config/providers（备用；优先用 UI Community 安装）。
-.PARAMETER Dest
-  目标目录，默认 <repo>\config\providers
-.PARAMETER WorkDir
-  临时 clone 目录
+  从社区元数据仓库拉取精选 providers 到 config/providers。
+  包名与上游 URL 均为 Base64；缺失项跳过并写入 scripts/_skip-log.txt。
 #>
 param(
   [string]$Dest = "",
@@ -21,8 +18,9 @@ function Decode-Name([string]$b64) {
   return [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($b64))
 }
 
-# 精选包相对路径（Base64）
+# Selected package names (Base64 only in source)
 $SelectedB64 = @(
+  # primary indexes
   "SmF2TGlicmFyeS55bWw=",
   "SmF2TGlicmFyeV9weXRob24=",
   "SmF2QnVzLnltbA==",
@@ -32,15 +30,18 @@ $SelectedB64 = @(
   "UjE4LmRldi55bWw=",
   "SUFGRA==",
   "QWR1bHRFbXBpcmUueW1s",
+  # primary studios
   "QnJhenplcnM=",
   "QmFuZ0Jyb3M=",
   "QWR1bHRUaW1l",
   "RmFrZUh1Yg==",
   "RXZpbEFuZ2Vs",
   "RGlnaXRhbFBsYXlncm91bmQ=",
+  # alternate indexes
   "R0VWSQ==",
   "R2F5QWR1bHRFbXBpcmUueW1s",
   "R2F5V2lyZQ==",
+  # alternate studios
   "RmFsY29uU3R1ZGlvcw==",
   "SGVsaXhTdHVkaW9zLnltbA==",
   "Q29ja3lCb3lzLnltbA==",
@@ -56,6 +57,7 @@ $SelectedB64 = @(
   "Qm95TmFwcGVk",
   "QmxhY2tNYWxlTWU=",
   "TWVu",
+  # optional
   "QmlwaG9yaWE="
 )
 
@@ -69,7 +71,7 @@ $PkgDir  = Decode-Name "c2NyYXBlcnM="
 $ZipRoot = Decode-Name "Q29tbXVuaXR5U2NyYXBlcnMtbWFzdGVy"
 
 Write-Host "==> providers → $Dest" -ForegroundColor Cyan
-Write-Host "    源：社区元数据仓库" -ForegroundColor DarkGray
+Write-Host "    源：社区元数据仓库（URL 已编码）" -ForegroundColor DarkGray
 
 $haveGit = [bool](Get-Command git -ErrorAction SilentlyContinue)
 $srcRoot = $null
@@ -79,8 +81,8 @@ if ($haveGit) {
     Write-Host "==> git pull" -ForegroundColor Cyan
     Push-Location $WorkDir
     try {
-      git fetch --depth 1 origin master 2>$null
-      git checkout -f origin/master 2>$null
+      git fetch --depth 1 origin master 2>$null | Out-Null
+      git checkout -f origin/master 2>$null | Out-Null
     } finally { Pop-Location }
   } else {
     if (Test-Path $WorkDir) { Remove-Item -Recurse -Force $WorkDir }
@@ -103,11 +105,18 @@ if (-not (Test-Path $srcRoot)) { throw "找不到社区包目录：$srcRoot" }
 
 $ok = 0
 $skip = 0
+$skipLog = Join-Path $PSScriptRoot "_skip-log.txt"
+$okLog = Join-Path $PSScriptRoot "_install-log.txt"
+$skipLines = @()
+$okLines = @()
+$stamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+
 foreach ($name in $Selected) {
   $src = Join-Path $srcRoot $name
   if (-not (Test-Path $src)) {
-    Write-Host "  SKIP  仓库中无该项" -ForegroundColor Yellow
+    Write-Host "  SKIP  (missing upstream)" -ForegroundColor Yellow
     $skip++
+    $skipLines += "[$stamp] MISSING $name"
     continue
   }
   $target = Join-Path $Dest $name
@@ -119,9 +128,14 @@ foreach ($name in $Selected) {
   }
   Write-Host "  OK    $name" -ForegroundColor Green
   $ok++
+  $okLines += "[$stamp] OK $name"
 }
+
+$okLines | Set-Content -Path $okLog -Encoding UTF8
+$skipLines | Set-Content -Path $skipLog -Encoding UTF8
 
 Write-Host ""
 Write-Host "完成：复制 $ok 项，跳过 $skip 项。" -ForegroundColor Cyan
-Write-Host "请到 MediaVault UI 重新加载 providers" -ForegroundColor Green
+Write-Host "日志：$okLog / $skipLog" -ForegroundColor DarkGray
+Write-Host "请到 MediaVault UI 重新加载 providers。" -ForegroundColor Green
 Write-Host "（更推荐平时用 UI：Metadata Providers → Community stable）" -ForegroundColor DarkGray

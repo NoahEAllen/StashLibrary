@@ -1,49 +1,38 @@
-﻿# 推送到私有 Git 仓库
+# 推送到私有 GitHub
 
-本机（工作电脑）只做源码整理，不要 `docker compose up`。目标电脑再部署。
+## 建议
 
-## 1. 本地已完成首提交时
+1. 仓库可见性设为 **Private**。
+2. 确认 `.env`、媒体文件、`config/providers/**` 已被 `.gitignore` 排除。
+3. 推送前运行：
 
 ```powershell
-cd D:\desktopfiles\MediaVault
-git status
+.\scripts\sanity-check.ps1
 ```
 
-## 2. 在 GitHub 建**私有**空仓库
-
-浏览器新建 Private 仓库，不要勾选自动加 README（本地已有）。
-
-## 3. 关联并推送
-
-把下面 URL 换成你的：
+## 首次推送示例
 
 ```powershell
-cd D:\desktopfiles\MediaVault
-git remote add origin https://github.com/<you>/<repo>.git
+cd <MediaVault 根目录>
+git init   # 若尚未初始化
+git add .
+git status   # 确认没有 .env / 媒体 / providers 实体文件
+git commit -m "init MediaVault catalog scaffold"
 git branch -M main
+git remote add origin https://github.com/<你>/<私有仓库>.git
 git push -u origin main
 ```
 
-SSH 亦可：
+## 目标电脑拉取
 
 ```powershell
-git remote add origin git@github.com:<you>/<repo>.git
-git push -u origin main
-```
-
-## 4. 目标电脑
-
-```powershell
-git clone <私有仓库 URL>
-cd <目录>
+git clone https://github.com/<你>/<私有仓库>.git MediaVault
+cd MediaVault
 .\scripts\bootstrap.ps1
 .\scripts\start.ps1
 ```
 
-然后按 `setup.md` 加 `/data/primary` 与 `/data/alternate`，并设置 Scrapers Path 为 `/root/.stash/providers`（与本仓库 `config/providers` 对应）。
-
 ## 注意
 
-- 仓库务必 **Private**。
-- 不要提交 `.env`、媒体文件、`metadata/` 等（已在 `.gitignore`）。
-- 目录与文档使用中性名；首次 `start.ps1` 才会在本地写出运行所需环境变量。
+- 不要把填好的 `.env` 提交上去（内含解码后的镜像名与路径键）。
+- `install-providers.ps1` 拉取的社区包落在 `config/providers/`，默认忽略；目标机再装一次即可。

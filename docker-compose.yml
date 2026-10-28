@@ -1,5 +1,5 @@
 # MediaVault — local media catalog service
-# Runtime image + path env vars are injected via .env (see scripts/start.ps1).
+# Runtime image and config-home path come from .env (written by scripts/start.ps1).
 services:
   mediavault:
     image: ${MV_IMAGE}

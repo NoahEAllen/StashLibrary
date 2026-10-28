@@ -1,82 +1,73 @@
-﻿# 分步安装
+# 部署指南
 
-前提：本机已装 Docker Desktop（或 Docker Engine + Compose）。
+## 前置条件
 
-## 1. 准备目录
+- Windows（或可跑 PowerShell 的环境）+ Docker Desktop / Docker Engine
+- 可选：`git`（`install-providers.ps1` 优先用 git；没有则自动下 zip）
+
+## 步骤
+
+### 1. 取得本仓库
+
+从私有 Git 克隆，或解压分发包到目标目录（例如 `D:\desktopfiles\MediaVault`）。
+
+### 2. 引导目录
 
 ```powershell
-cd <本仓库路径>
+cd <MediaVault 根目录>
 .\scripts\bootstrap.ps1
 ```
 
-会检查并补齐 `library`、`config`、`metadata` 等目录。
-
-## 2. 启动 MediaVault
+### 3. 启动
 
 ```powershell
 .\scripts\start.ps1
 ```
 
-等价于：`docker compose up -d`。
+脚本会：
 
-稍等后打开：<http://localhost:9999>
+1. 若无 `.env`，从 `.env.example` 复制；
+2. 解码写入 `MV_IMAGE`、`MV_CONFIG_HOME` 及上游路径类环境变量（**不出现在仓库明文**）；
+3. 执行 `docker compose up -d`。
 
-按向导完成基础设置即可（生成路径等已由环境变量指向容器内目录）。
+### 4. 打开 UI
 
-## 3. 添加两个媒体库路径
+浏览器访问 `http://localhost:9999`（或你在 `.env` 设的 `MV_HOST_PORT`）。
 
-在 Web UI 的 Library 设置中：
+### 5. 添加两个 Library
 
-1. 添加 `/data/primary` — A 向（primary）
-2. 添加 `/data/alternate` — B 向（alternate）
+参考 [`presets/libraries.json.example`](../presets/libraries.json.example)：
 
-对应本机：
+| 显示名建议 | 路径 |
+|------------|------|
+| Primary | `/data/primary` |
+| Alternate | `/data/alternate` |
 
-- `.\library\primary` → `/data/primary`
-- `.\library\alternate` → `/data/alternate`
+子目录约定见 [naming.md](naming.md)。
 
-`_inbox` 建议先不加入 Library，整理后再挪入分区。
+### 6. 配置 providers 路径与推荐项
 
-## 4. 安装元数据索引器（providers）
+见 [`presets/recommended-settings.md`](../presets/recommended-settings.md)。  
+日常安装索引器：UI → Settings → Metadata Providers → **Community (stable)**，按 [providers.md](providers.md) 的模糊关键词搜索安装。
 
-**推荐（UI）：**
-
-1. **Settings → Metadata Providers**
-2. 使用 **Community (stable)** 源
-3. 按 [`providers.md`](providers.md) 搜索安装所需包
-4. 安装后执行 **重新加载 / Reload**（若界面有该按钮）
-
-**备用（脚本）：**
+离线批量备用：
 
 ```powershell
 .\scripts\install-providers.ps1
 ```
 
-将精选包写入 `config\providers`，缺失项会跳过并打印。
-
-然后在 UI：**Settings → System → Application Paths**，把 Scrapers Path 设为 `/root/.stash/providers`（对应宿主机 `config\providers`），再 Reload providers。
-
-## 5. 放入媒体并扫描
-
-1. 按 [`naming.md`](naming.md) 放入 `library\primary\...` 或 `library\alternate\...`
-2. 在 UI 执行 **Scan**
-3. 对条目用对应 provider（按文件名片段或 URL）补全封面、演职、厂牌
-
-## 6. 日常
+### 7. 自检
 
 ```powershell
-.\scripts\start.ps1
+.\scripts\sanity-check.ps1
+```
+
+## 停止
+
+```powershell
 .\scripts\stop.ps1
 ```
 
-升级：
+## 改端口
 
-```powershell
-docker compose pull
-docker compose up -d
-```
-
-## 端口
-
-默认 `9999`。复制 `.env.example` → `.env`，设置 `MV_HOST_PORT`，再启动。
-
+编辑 `.env` 中 `MV_HOST_PORT`，再 `start.ps1`。

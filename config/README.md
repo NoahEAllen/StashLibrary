@@ -1,11 +1,6 @@
-# config — MediaVault 配置目录
+# config/
 
-挂载为容器内应用配置根目录。首次 `docker compose up` 后会自动生成配置文件与数据库，一般无需手写。
+运行时配置目录，挂载到容器内配置家目录（路径由 `scripts/start.ps1` 写入 `.env` 的 `MV_CONFIG_HOME`，不在仓库明文出现）。
 
-## 元数据索引器（providers）
-
-- 路径：`config/providers/`
-- **推荐**：Web UI → **Settings → Metadata Providers → Community (stable)** 搜索安装
-- **备用**：仓库根目录运行 `scripts/install-providers.ps1`，再在 UI 中 Reload
-
-安装后刷新 providers 列表即可（多数情况不必重启容器）。
+- `providers/`：元数据索引器文件落盘处（由 UI Community 安装或 `scripts/install-providers.ps1` 填充）。
+- 其它 `*.yml` / sqlite 由服务首次启动生成，默认被 `.gitignore` 忽略。

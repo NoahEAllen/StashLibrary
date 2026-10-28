@@ -1,59 +1,72 @@
-# 元数据索引器（providers）
+# 精选 Providers（模糊检索指南）
 
-优先用 UI 安装：
+本页**不写**上游包的完整技术文件名。安装时在 UI 的 Community 源里用下表「搜索词」查找；或运行 `scripts/install-providers.ps1`（包名以 Base64 保存在脚本数组中，缺失则跳过并记入 `scripts/_skip-log.txt`）。
 
-**Settings → Metadata Providers → Available → Community (stable)**
+## primary（A 向）— 元数据站 / 目录
 
-下面只写「搜什么 / 干什么」。具体包名在 `scripts/install-providers.ps1` 里编码存放，避免仓库目录一眼可读。
+| 用途 | UI 搜索词（模糊） |
+|------|-------------------|
+| 亚洲资料站 A | `Library` + 亚洲编码站常见拼写首段 |
+| 亚洲资料站 B | `Bus` |
+| 亚洲资料站 C | `db`（注意大小写变体） |
+| 亚洲资料站 D | `Database` |
+| 亚洲官方目录 | `R18` 或 `r18` + `.dev` |
+| 欧美演员/作品总目 | `IAFD` |
+| 欧美碟片/数字目录 | `Empire`（选 A 向目录那一项） |
 
----
+## primary — 厂牌示例
 
-## primary（A 向）
+| 厂牌 | UI 搜索词 |
+|------|-----------|
+| Brazzers | `Brazzers` |
+| BangBros | `BangBros` |
+| Time 网络 | `Time`（选网络版包） |
+| FakeHub | `FakeHub` |
+| EvilAngel | `EvilAngel` |
+| DigitalPlayground | `DigitalPlayground` |
 
-### 亚洲成片资料
+## alternate（B 向）— 索引
 
-Community 搜索：`Library`、`Bus`、`DB`、`Database`、`r18`、`asia`  
-用途：按出品编号补全标题、演职、封面。
+| 用途 | UI 搜索词 |
+|------|-----------|
+| 经典索引 | `GEVI` |
+| Empire 目录（B） | `Empire`（选 B 向那一项） |
+| Wire 网络 | `Wire` |
 
-### 通用目录 / 元数据库
+## alternate — 厂牌
 
-| 搜索关键词 | 用途 |
-|------------|------|
-| IAFD | 国际影片资料交叉核对 |
-| Empire | 目录页（注意区分 A/B 向不同包） |
-| TPDB / 社区 API | 需自行配置 token 的元数据 API |
-| box | Metadata Providers 里配置远程 box，批量匹配 |
+| 厂牌 | UI 搜索词 |
+|------|-----------|
+| FalconStudios | `Falcon` |
+| HelixStudios | `Helix` |
+| CockyBoys | `Cocky` |
+| SeanCody | `SeanCody` |
+| NextDoorStudios | `NextDoor` |
+| HotHouse | `HotHouse` |
+| Kink 线（Men） | `KinkMen` 或 `Kink` |
+| Staxus | `Staxus` |
+| Bromo | `Bromo` |
+| ChaosMen | `Chaos` |
+| ActiveDuty | `ActiveDuty` |
+| CzechHunter | `CzechHunter` |
+| BoyNapped | `BoyNapped` |
+| BlackMaleMe | `BlackMale` |
+| Men 系站点 | `Men`（注意勿装错同名） |
 
-### 欧美厂牌
+## 可选
 
-按你实际收藏的厂牌名在 Community 搜索安装；也可用脚本一次装入精选包。
+| 用途 | UI 搜索词 |
+|------|-----------|
+| 双线厂牌 | `Biphoria` |
 
----
+## 安装方式优先级
 
-## alternate（B 向）
+1. **推荐**：Web UI → Settings → Metadata Providers → Community (stable) → 按上表搜索安装。
+2. **备用**：`.\scripts\install-providers.ps1`（clone/zip 社区库后按编码清单复制到 `config/providers`）。
+3. 安装后在 UI 中 **Reload** providers。
 
-### 索引
+导出当前脚本内编码清单（仍为 Base64，不含明文包名文件）：
 
-| 搜索关键词 | 用途 |
-|------------|------|
-| GEVI | 大型 B 向影片索引（演职 / 单集 / 整片） |
-| Empire、Wire | B 向目录站相关包 |
-
-### 厂牌
-
-按收藏厂牌名搜索安装。精选列表见 `install-providers.ps1`（编码），用到哪个装哪个。
-
----
-
-## 双线备注
-
-主分区为 **primary + alternate**。若有双线厂牌，在 Community 搜对应厂牌名，用标签区分即可，不必第三套 Library。
-
----
-
-## 使用提示
-
-1. **优先 URL**：厂牌官网或资料站页面填进条目后再拉取。
-2. **亚洲成片靠出品编号**：文件名带标准编号，再用 asia 资料源。
-3. **不要用下载站当元数据源**：人机验证与跳转页易失败。
-4. 装完在 UI **重新加载** providers；脚本类包报错时看容器日志与该包说明。
+```powershell
+.\scripts\export-provider-list.ps1
+```

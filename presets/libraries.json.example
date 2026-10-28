@@ -1,0 +1,22 @@
+{
+  "_comment": "在 Web UI 中手动添加 Library；路径必须是容器内路径。此文件仅作说明，不要当作可直接导入的官方格式依赖。",
+  "libraries": [
+    {
+      "name": "Primary",
+      "path": "/data/primary",
+      "zone": "primary",
+      "hint": "A-orient media: asia / western / indie subfolders"
+    },
+    {
+      "name": "Alternate",
+      "path": "/data/alternate",
+      "zone": "alternate",
+      "hint": "B-orient media: studios / western / indie subfolders"
+    }
+  ],
+  "optional_inbox": {
+    "name": "Inbox",
+    "path": "/data/_inbox",
+    "note": "Usually no need to create a Library; sort into primary/alternate first."
+  }
+}

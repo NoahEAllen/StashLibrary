@@ -1,61 +1,65 @@
-﻿# MediaVault
+# MediaVault
 
-本地媒体编目脚手架：一个实例里用两个分区管理片库——**primary（A 向）** 与 **alternate（B 向）**。媒体只放在 `library/`，配置与元数据索引器在 `config/`。
+本地媒体**编目工程**：以官方运行时镜像为底座，本仓库提供双分区片库布局、精选元数据 providers 安装脚本与运维说明。
 
-适合：先推到自己的 Git 仓库，再在另一台机器用 Docker 拉起。文件夹对外看起来就是普通「媒体编目 / catalog」工程。
+- **不是**上游应用源码的 fork / 移植。
+- **是** docker-compose + 工程化脚手架：`primary`（A 向）与 `alternate`（B 向）两套 Library，配合 Community 精选索引包。
 
-## 目录
+适合推到**私有** Git 仓库，再在目标电脑部署。目录命名刻意中性，外人打开不易联想到具体题材。
+
+## 目录一览
 
 | 路径 | 用途 |
 |------|------|
-| `library/primary/` | A 向媒体（asia / western / indie） |
-| `library/alternate/` | B 向媒体（studios / western / indie） |
+| `library/primary/` | A 向媒体（`asia` / `western` / `indie`） |
+| `library/alternate/` | B 向媒体（`studios` / `western` / `indie`） |
 | `library/_inbox/` | 待整理投递区 |
-| `config/` | 服务配置与 providers（元数据索引器） |
-| `metadata/` `cache/` `blobs/` `generated/` | 运行时数据 |
+| `config/` | 服务配置；`config/providers/` 为元数据索引器落盘处 |
+| `metadata/` `cache/` `blobs/` `generated/` | 运行时数据（默认不进 Git） |
+| `presets/` | 双库路径与推荐设置说明 |
+| `docs/` | 中文文档 |
+| `scripts/` | 引导 / 启停 / 安装 providers / 自检 |
 
 容器内媒体根路径为 **`/data`**：
 
 - primary → `/data/primary`
 - alternate → `/data/alternate`
 
-## 启动（Windows + Docker）
+## 快速开始（Windows + Docker）
 
 ```powershell
 cd <本仓库路径>
 .\scripts\bootstrap.ps1
 .\scripts\start.ps1
+.\scripts\sanity-check.ps1
 ```
 
-浏览器：<http://localhost:9999>
+浏览器打开：<http://localhost:9999>（端口可用 `.env` 中 `MV_HOST_PORT` 修改）
 
-分步说明：[`docs/setup.md`](docs/setup.md) · 命名：[`docs/naming.md`](docs/naming.md) · 索引器：[`docs/providers.md`](docs/providers.md)
+首次进入 Web UI 后，按 [`presets/libraries.json.example`](presets/libraries.json.example) 添加两个库路径，并阅读 [`presets/recommended-settings.md`](presets/recommended-settings.md)。
 
-## 两个分区怎么用
+## 文档
 
-- **primary（A 向）**：亚洲成片、欧美主流厂牌、独立/业余等 → `library/primary/...`
-- **alternate（B 向）**：厂牌成片、欧美 alternate 线、独立/业余等 → `library/alternate/...`
-
-建议在 Web UI 里建 **两个 Library 路径**，分别指向 `/data/primary` 与 `/data/alternate`。
-
-## 元数据原则
-
-- 用 **资料站 / 厂牌官网** 做编目（出品编号、厂牌页、社区元数据库等）。
-- 不要用下载站页面当元数据源（人机验证、跳转页不稳定）。
-- 推荐在 UI：**Settings → Metadata Providers → Community (stable)** 安装索引器。`scripts/install-providers.ps1` 仅作离线/手动备用。
+| 文档 | 内容 |
+|------|------|
+| [docs/architecture.md](docs/architecture.md) | 架构边界：镜像 vs 本仓库 |
+| [docs/setup.md](docs/setup.md) | 部署与双库配置 |
+| [docs/naming.md](docs/naming.md) | 文件 / 目录命名规范 |
+| [docs/providers.md](docs/providers.md) | 精选 providers（模糊检索词） |
+| [docs/git-publish.md](docs/git-publish.md) | 推私有 GitHub |
 
 ## 常用命令
 
 ```powershell
 .\scripts\start.ps1
 .\scripts\stop.ps1
+.\scripts\install-providers.ps1   # 离线/批量备用；日常更推荐 UI Community
+.\scripts\export-provider-list.ps1
+.\scripts\sanity-check.ps1
 ```
 
-改端口：复制 `.env.example` 为 `.env`，修改 `MV_HOST_PORT`。
+## 原则
 
-镜像技术名在 compose 中保留上游官方镜像；对外说明统一称 **MediaVault / 本地媒体编目服务**。
-
-## 推送到私有仓库
-
-见 [docs/git-publish.md](docs/git-publish.md)。本工作电脑只提交源码，部署放到目标机。
-
+1. 元数据来自**资料站 / 厂牌官网 / 社区索引包**，不要用下载站页面当源。
+2. 镜像名、上游环境变量键、Community 包路径在仓库中以 **Base64** 存放，由 `start.ps1` / `install-providers.ps1` 首次解码写入 gitignored 的 `.env` 或本地目录。
+3. 对外统一称 **MediaVault / 本地媒体编目服务**。

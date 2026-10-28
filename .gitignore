@@ -1,8 +1,24 @@
-﻿.env
-.env.*
-!.env.example
+# Secrets & local runtime (never commit)
+.env
+.env.local
+*.local
 
-# runtime
+# Media files
+*.mp4
+*.mkv
+*.avi
+*.wmv
+*.mov
+*.m4v
+*.ts
+*.m2ts
+*.webm
+*.part
+*.rar
+*.zip
+!docs/**/*.zip
+
+# Runtime data dirs
 metadata/**
 !metadata/.gitkeep
 cache/**
@@ -12,42 +28,32 @@ blobs/**
 generated/**
 !generated/.gitkeep
 
-# media (keep folder placeholders only)
+# Library media (keep structure only)
 library/**/*
 !library/**/
 !library/**/.gitkeep
 
-# app config written on first run
+# App config & installed providers (generated on target machine)
 config/*.yml
 config/*.yaml
 config/*.sqlite*
 config/*.sqlite
-config/*.db
 config/config.yml
 config/providers/**
 !config/providers/.gitkeep
+!config/README.md
 
-# media extensions
-*.mp4
-*.mkv
-*.avi
-*.wmv
-*.ts
-*.m4v
-*.mov
-*.flv
-*.webm
-*.part
-*.aria2
-*.nfo
-*.jpg
-*.jpeg
-*.png
-*.gif
-!docs/**
-
-# local-only notes
-*.local.md
+# Install logs
 _MANIFEST.txt
+scripts/_install-log.txt
+scripts/_skip-log.txt
+presets/libraries.json
+
+# OS / editor
 .DS_Store
 Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+*.swp
+*~

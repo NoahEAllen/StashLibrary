@@ -1,0 +1,53 @@
+﻿.env
+.env.*
+!.env.example
+
+# runtime
+metadata/**
+!metadata/.gitkeep
+cache/**
+!cache/.gitkeep
+blobs/**
+!blobs/.gitkeep
+generated/**
+!generated/.gitkeep
+
+# media (keep folder placeholders only)
+library/**/*
+!library/**/
+!library/**/.gitkeep
+
+# app config written on first run
+config/*.yml
+config/*.yaml
+config/*.sqlite*
+config/*.sqlite
+config/*.db
+config/config.yml
+config/providers/**
+!config/providers/.gitkeep
+
+# media extensions
+*.mp4
+*.mkv
+*.avi
+*.wmv
+*.ts
+*.m4v
+*.mov
+*.flv
+*.webm
+*.part
+*.aria2
+*.nfo
+*.jpg
+*.jpeg
+*.png
+*.gif
+!docs/**
+
+# local-only notes
+*.local.md
+_MANIFEST.txt
+.DS_Store
+Thumbs.db

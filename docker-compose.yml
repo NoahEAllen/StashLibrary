@@ -1,0 +1,25 @@
+# MediaVault — local media catalog service
+# Runtime image + path env vars are injected via .env (see scripts/start.ps1).
+services:
+  mediavault:
+    image: ${MV_IMAGE}
+    container_name: mediavault
+    restart: unless-stopped
+    ports:
+      - "${MV_HOST_PORT:-9999}:9999"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "10"
+        max-size: "2m"
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./config:${MV_CONFIG_HOME}
+      - ./library:/data
+      - ./metadata:/metadata
+      - ./cache:/cache
+      - ./blobs:/blobs
+      - ./generated:/generated

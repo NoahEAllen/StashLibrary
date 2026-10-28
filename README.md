@@ -7,6 +7,15 @@
 
 适合推到**私有** Git 仓库，再在目标电脑部署。目录命名刻意中性，外人打开不易联想到具体题材。
 
+## 平台脚本
+
+| 平台 | 脚本 |
+|------|------|
+| **Windows** | `scripts/*.ps1`（PowerShell 5.1+） |
+| **Linux / macOS** | `scripts/*.sh`（bash） |
+
+两边功能对等；精选包名共用 [`presets/provider-list.b64.txt`](presets/provider-list.b64.txt)。
+
 ## 目录一览
 
 | 路径 | 用途 |
@@ -16,16 +25,18 @@
 | `library/_inbox/` | 待整理投递区 |
 | `config/` | 服务配置；`config/providers/` 为元数据索引器落盘处 |
 | `metadata/` `cache/` `blobs/` `generated/` | 运行时数据（默认不进 Git） |
-| `presets/` | 双库路径与推荐设置说明 |
+| `presets/` | 双库路径、共享 Base64 清单与推荐设置 |
 | `docs/` | 中文文档 |
-| `scripts/` | 引导 / 启停 / 安装 providers / 自检 |
+| `scripts/` | 引导 / 启停 / 安装 providers / 更新 / 自检（ps1 + sh） |
 
 容器内媒体根路径为 **`/data`**：
 
 - primary → `/data/primary`
 - alternate → `/data/alternate`
 
-## 快速开始（Windows + Docker）
+## 快速开始
+
+### Windows
 
 ```powershell
 cd <本仓库路径>
@@ -35,26 +46,52 @@ cd <本仓库路径>
 .\scripts\sanity-check.ps1
 ```
 
+### Linux / macOS
+
+```bash
+cd <本仓库路径>
+chmod +x scripts/*.sh
+./scripts/bootstrap.sh
+./scripts/first-run-checklist.sh
+./scripts/start.sh
+./scripts/sanity-check.sh
+```
+
 浏览器打开：<http://localhost:9999>（端口可用 `.env` 中 `MV_HOST_PORT` 修改）
 
 首次进入 Web UI 后，按 [`presets/libraries.json.example`](presets/libraries.json.example) 添加两个库路径，并阅读 [`presets/recommended-settings.md`](presets/recommended-settings.md)。
 
 ## 日常更新
 
+推荐一键：
+
 ```powershell
-git pull
-.\scripts\install-providers.ps1 -Profile all
-docker compose pull
+# Windows
+.\scripts\update.ps1
+.\scripts\update.ps1 -SkipProviders
 ```
 
-（更新镜像后可再执行 `.\scripts\start.ps1`。）
+```bash
+# Linux / macOS
+./scripts/update.sh
+./scripts/update.sh -SkipProviders
+```
+
+等价手动步骤：
+
+```text
+git pull
+install-providers -Profile all
+docker compose pull
+start（ensure .env + up -d）
+```
 
 ## 文档
 
 | 文档 | 内容 |
 |------|------|
 | [docs/architecture.md](docs/architecture.md) | 架构边界：镜像 vs 本仓库 |
-| [docs/setup.md](docs/setup.md) | 部署与双库配置 |
+| [docs/setup.md](docs/setup.md) | 部署与双库配置（Windows / Linux） |
 | [docs/naming.md](docs/naming.md) | 文件 / 目录命名规范 |
 | [docs/providers.md](docs/providers.md) | 精选 providers（模糊检索词） |
 | [docs/git-publish.md](docs/git-publish.md) | 推私有 GitHub |
@@ -62,8 +99,10 @@ docker compose pull
 ## 常用命令
 
 ```powershell
+# Windows
 .\scripts\start.ps1
 .\scripts\stop.ps1
+.\scripts\update.ps1
 .\scripts\first-run-checklist.ps1
 .\scripts\install-providers.ps1 -Profile all
 .\scripts\install-providers.ps1 -Profile primary
@@ -72,8 +111,20 @@ docker compose pull
 .\scripts\sanity-check.ps1
 ```
 
+```bash
+# Linux / macOS
+./scripts/start.sh
+./scripts/stop.sh
+./scripts/update.sh
+./scripts/first-run-checklist.sh
+./scripts/install-providers.sh -Profile all
+./scripts/install-providers.sh -Profile primary
+./scripts/install-providers.sh -Profile alternate
+./scripts/sanity-check.sh
+```
+
 ## 原则
 
 1. 元数据来自**资料站 / 厂牌官网 / 社区索引包**，不要用下载站页面当源。
-2. 镜像名、上游环境变量键、Community 包路径在仓库中以 **Base64** 存放，由 `start.ps1` / `install-providers.ps1` 首次解码写入 gitignored 的 `.env` 或本地目录。
+2. 镜像名、上游环境变量键、Community 包路径在仓库中以 **Base64** 存放；`start` / `install-providers` 首次解码写入 gitignored 的 `.env` 或本地目录。精选包名清单：`presets/provider-list.b64.txt`。
 3. 对外统一称 **MediaVault / 本地媒体编目服务**。

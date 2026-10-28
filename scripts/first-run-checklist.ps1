@@ -35,6 +35,8 @@ $hasSetup = Test-Path $SetupDoc
 
 Write-Host "-- 仓库结构 --" -ForegroundColor DarkCyan
 Mark $hasBootstrap   "scripts/bootstrap.ps1 存在"
+$hasBootstrapSh = Test-Path (Join-Path $Root "scripts\bootstrap.sh")
+Mark $hasBootstrapSh "scripts/bootstrap.sh 存在（Linux/macOS）"
 Mark $hasCompose     "docker-compose.yml 存在"
 Mark $hasEnvExample  ".env.example 存在"
 Mark $hasPrimary     "library/primary 存在"
@@ -62,6 +64,7 @@ Write-Host "       .\scripts\install-providers.ps1 -Profile alternate"
 Write-Host " 8. UI 中 Reload providers"
 Write-Host " 9. 对两个 Library 执行 Scan（首次 Full Scan）"
 Write-Host "10. .\scripts\sanity-check.ps1（可选）"
+Write-Host "11. 日常：.\scripts\update.ps1   （可选 -SkipProviders；Linux 用 update.sh）"
 
 Write-Host ""
 Write-Host "跳过日志（安装后）：config/providers/_skip-log.txt（已 gitignore）" -ForegroundColor DarkGray

@@ -2,33 +2,45 @@
 
 ## 前置条件
 
-- Windows（或可跑 PowerShell 的环境）+ Docker Desktop / Docker Engine
-- 可选：`git`（`install-providers.ps1` 优先用 git；没有则自动下 zip）
+- Docker Desktop / Docker Engine
+- **Windows**：PowerShell 5.1+（用 `scripts/*.ps1`）
+- **Linux / macOS**：bash（用 `scripts/*.sh`，先 `chmod +x scripts/*.sh`）
+- 可选：`git`（`install-providers` 优先用 git；没有则自动下 zip）
 
 ## 步骤
 
 ### 1. 取得本仓库
 
-从私有 Git 克隆，或解压分发包到目标目录（例如 `D:\desktopfiles\MediaVault`）。
+从私有 Git 克隆，或解压分发包到目标目录。
 
 ### 2. 引导目录
+
+Windows：
 
 ```powershell
 cd <MediaVault 根目录>
 .\scripts\bootstrap.ps1
+.\scripts\first-run-checklist.ps1
+.\scripts\first-run-checklist.ps1 -OpenDocs
 ```
 
-可选：打印首次勾选清单（不启动 Docker）：
+Linux / macOS：
 
-```powershell
-.\scripts\first-run-checklist.ps1
-.\scripts\first-run-checklist.ps1 -OpenDocs   # 用记事本打开本文档
+```bash
+cd <MediaVault 根目录>
+./scripts/bootstrap.sh
+./scripts/first-run-checklist.sh
+./scripts/first-run-checklist.sh --OpenDocs
 ```
 
 ### 3. 启动
 
 ```powershell
 .\scripts\start.ps1
+```
+
+```bash
+./scripts/start.sh
 ```
 
 脚本会：
@@ -59,12 +71,18 @@ cd <MediaVault 根目录>
 
 日常安装索引器：UI → Settings → Metadata Providers → **Community (stable)**，按 [providers.md](providers.md) 的模糊关键词搜索安装。
 
-离线 / 批量备用（按分区）：
+离线 / 批量备用（按分区；包名读自 `presets/provider-list.b64.txt`）：
 
 ```powershell
 .\scripts\install-providers.ps1                  # 默认 -Profile all
 .\scripts\install-providers.ps1 -Profile primary
 .\scripts\install-providers.ps1 -Profile alternate
+```
+
+```bash
+./scripts/install-providers.sh -Profile all
+./scripts/install-providers.sh -Profile primary
+./scripts/install-providers.sh -Profile alternate
 ```
 
 缺失包会跳过，日志写入 `config/providers/_skip-log.txt`（已 gitignore，勿提交）。
@@ -77,13 +95,22 @@ cd <MediaVault 根目录>
 .\scripts\sanity-check.ps1
 ```
 
+```bash
+./scripts/sanity-check.sh
+```
+
 ## 日常更新
 
+一键（`git pull` + providers + `compose pull` + `up -d`）：
+
 ```powershell
-git pull
-.\scripts\install-providers.ps1 -Profile all
-docker compose pull
-.\scripts\start.ps1
+.\scripts\update.ps1
+.\scripts\update.ps1 -SkipProviders
+```
+
+```bash
+./scripts/update.sh
+./scripts/update.sh -SkipProviders
 ```
 
 ## 停止
@@ -92,6 +119,10 @@ docker compose pull
 .\scripts\stop.ps1
 ```
 
+```bash
+./scripts/stop.sh
+```
+
 ## 改端口
 
-编辑 `.env` 中 `MV_HOST_PORT`，再 `start.ps1`。
+编辑 `.env` 中 `MV_HOST_PORT`，再执行对应平台的 `start` 脚本。

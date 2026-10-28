@@ -1,6 +1,6 @@
 # 推荐设置（UI 对照表）
 
-以下键名按上游 Web UI 常见英文标签描述；**具体配置家目录路径不在此明文写出**，由 `scripts/start.ps1` 解码写入 `.env` 的 `MV_CONFIG_HOME`，compose 再挂载 `./config` → 该路径。
+以下键名按上游 Web UI 常见英文标签描述；**具体配置家目录路径不在此明文写出**，由 `scripts/start.ps1 / start.sh` 解码写入 `.env` 的 `MV_CONFIG_HOME`，compose 再挂载 `./config` → 该路径。
 
 ## Library
 
@@ -16,7 +16,7 @@
 |----|------|
 | Providers 目录 | 配置家目录下的 `providers` 子目录（与本仓库 `config/providers` 对应） |
 | 来源 | Community (stable) |
-| 安装集合 | 见 [docs/providers.md](../docs/providers.md)；或 `install-providers.ps1 -Profile primary|alternate|all` |
+| 安装集合 | 见 [docs/providers.md](../docs/providers.md)；或 `install-providers.ps1 / .sh -Profile primary|alternate|all` |
 
 ## 生成与缓存
 
@@ -27,7 +27,7 @@
 | 生成预览等 | `./generated` | `/generated` |
 | 二进制 blob | `./blobs` | `/blobs` |
 
-（上游环境变量键名同样由 `start.ps1` 以 Base64 写入 `.env`，勿手抄进文档。）
+（上游环境变量键名同样由 `start.ps1` / `start.sh` 以 Base64 写入 `.env`，勿手抄进文档。）
 
 ## 区域
 

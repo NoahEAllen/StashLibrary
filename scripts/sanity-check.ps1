@@ -45,13 +45,22 @@ $required = @(
   "docs\architecture.md",
   "presets\libraries.json.example",
   "presets\recommended-settings.md",
+  "presets\provider-list.b64.txt",
   "scripts\bootstrap.ps1",
   "scripts\start.ps1",
   "scripts\stop.ps1",
   "scripts\install-providers.ps1",
   "scripts\first-run-checklist.ps1",
   "scripts\sanity-check.ps1",
-  "scripts\export-provider-list.ps1"
+  "scripts\export-provider-list.ps1",
+  "scripts\update.ps1",
+  "scripts\bootstrap.sh",
+  "scripts\start.sh",
+  "scripts\stop.sh",
+  "scripts\install-providers.sh",
+  "scripts\first-run-checklist.sh",
+  "scripts\sanity-check.sh",
+  "scripts\update.sh"
 )
 foreach ($r in $required) {
   $p = Join-Path $Root $r
@@ -87,8 +96,8 @@ $ForbiddenB64 = @(
 )
 $Forbidden = $ForbiddenB64 | ForEach-Object { Decode-B64 $_ }
 
-$includeExt = @('.md', '.yml', '.yaml', '.ps1', '.example', '.json', '.txt', '.gitignore')
-$excludeName = @('_skip-log.txt', '_install-log.txt', 'provider-list.b64.txt')
+$includeExt = @('.md', '.yml', '.yaml', '.ps1', '.sh', '.example', '.json', '.txt', '.gitignore')
+$excludeName = @('_skip-log.txt', '_install-log.txt', 'provider-list.b64.txt', '_OUT.txt')
 
 $files = Get-ChildItem -Path $Root -Recurse -File | Where-Object {
   $ext = $_.Extension.ToLowerInvariant()
@@ -100,7 +109,6 @@ $files = Get-ChildItem -Path $Root -Recurse -File | Where-Object {
 
 foreach ($f in $files) {
   $rel = $f.FullName.Substring($Root.Length).TrimStart('\', '/')
-  # Filenames must also be clean
   $nameLower = $f.Name.ToLowerInvariant()
   foreach ($word in $Forbidden) {
     $w = $word.ToLowerInvariant()
@@ -112,7 +120,6 @@ foreach ($f in $files) {
   $lineNo = 0
   foreach ($line in $lines) {
     $lineNo++
-    # Strip base64-looking tokens before scanning
     $scrub = [regex]::Replace($line, '[A-Za-z0-9+/]{8,}={0,2}', 'B64')
     $lower = $scrub.ToLowerInvariant()
     foreach ($word in $Forbidden) {
@@ -127,53 +134,71 @@ foreach ($f in $files) {
   }
 }
 
-# --- start.ps1 must contain encoded blobs ---
-$start = Get-Content (Join-Path $Root "scripts\start.ps1") -Raw
-if ($start -match 'c3Rhc2hhcHAvc3Rhc2g6bGF0ZXN0') { Ok "start.ps1 has encoded image" } else { Fail "start.ps1 missing encoded image blob" }
-if ($start -match 'L3Jvb3QvLnN0YXNo') { Ok "start.ps1 has encoded config home" } else { Fail "start.ps1 missing encoded config home" }
-
-# --- install-providers: Profile + split arrays ---
-$inst = Get-Content (Join-Path $Root "scripts\install-providers.ps1") -Raw
-if ($inst -match 'PrimaryB64') { Ok "install-providers has PrimaryB64" } else { Fail "install-providers missing PrimaryB64" }
-if ($inst -match 'AlternateB64') { Ok "install-providers has AlternateB64" } else { Fail "install-providers missing AlternateB64" }
-if ($inst -match 'ValidateSet\(''primary'')' -or $inst -match 'ValidateSet\("primary"\)' -or $inst -match "ValidateSet\('primary'") {
-  Ok "install-providers has ValidateSet Profile"
-} elseif ($inst -match '\$Profile' -and $inst -match "primary" -and $inst -match "alternate" -and $inst -match "all") {
-  Ok "install-providers has Profile primary|alternate|all"
-} else {
-  Fail "install-providers missing Profile param"
+# --- start scripts encoded blobs ---
+foreach ($name in @('start.ps1', 'start.sh')) {
+  $start = Get-Content (Join-Path $Root "scripts\$name") -Raw
+  if ($start -match 'c3Rhc2hhcHAvc3Rhc2g6bGF0ZXN0') { Ok "$name has encoded image" } else { Fail "$name missing encoded image blob" }
+  if ($start -match 'L3Jvb3QvLnN0YXNo') { Ok "$name has encoded config home" } else { Fail "$name missing encoded config home" }
 }
-if ($inst -match 'config\\providers' -or $inst -match '_skip-log\.txt') {
-  Ok "install-providers skip-log under providers"
-} else {
-  Fail "install-providers missing skip-log path"
-}
-if ($inst -match 'Q29tbXVuaXR5U2NyYXBlcnM') { Ok "install-providers has encoded community marker" } else { Fail "install-providers missing community encoding" }
 
-# count encoded package entries across both arrays
-$cnt = ([regex]::Matches($inst, '"([A-Za-z0-9+/=]{8,})"')).Count
-if ($cnt -ge 30) { Ok "install-providers has many encoded entries ($cnt quotes)" } else { Fail "install-providers too few encoded strings ($cnt)" }
+# --- install-providers: Profile + shared list ---
+foreach ($name in @('install-providers.ps1', 'install-providers.sh')) {
+  $inst = Get-Content (Join-Path $Root "scripts\$name") -Raw
+  if ($inst -match 'provider-list\.b64\.txt') { Ok "$name references shared list" } else { Fail "$name missing shared list ref" }
+  if ($inst -match '\$Profile' -or $inst -match 'PROFILE') {
+    if ($inst -match "primary" -and $inst -match "alternate" -and $inst -match "all") {
+      Ok "$name has Profile primary|alternate|all"
+    } else { Fail "$name missing Profile values" }
+  } else { Fail "$name missing Profile" }
+  if ($inst -match '_skip-log\.txt') { Ok "$name skip-log under providers" } else { Fail "$name missing skip-log path" }
+  if ($inst -match 'Q29tbXVuaXR5U2NyYXBlcnM') { Ok "$name has encoded community marker" } else { Fail "$name missing community encoding" }
+}
+
+# count encoded package entries in shared list
+$listRaw = Get-Content (Join-Path $Root "presets\provider-list.b64.txt")
+$cnt = @($listRaw | Where-Object { $_ -match '^[A-Za-z0-9+/=]{8,}$' }).Count
+if ($cnt -ge 30) { Ok "provider-list.b64.txt has $cnt entries" } else { Fail "provider-list.b64.txt too few ($cnt)" }
+
+# --- update scripts ---
+foreach ($name in @('update.ps1', 'update.sh')) {
+  $upd = Get-Content (Join-Path $Root "scripts\$name") -Raw
+  if ($upd -match 'git pull') { Ok "$name has git pull" } else { Fail "$name missing git pull" }
+  if ($upd -match 'compose pull') { Ok "$name has compose pull" } else { Fail "$name missing compose pull" }
+  if ($upd -match 'SkipProviders') { Ok "$name has SkipProviders" } else { Fail "$name missing SkipProviders" }
+}
 
 # --- first-run-checklist markers ---
-$chk = Get-Content (Join-Path $Root "scripts\first-run-checklist.ps1") -Raw
-if ($chk -match 'OpenDocs') { Ok "first-run-checklist has -OpenDocs" } else { Fail "first-run-checklist missing OpenDocs" }
-if ($chk -match '/data/primary' -and $chk -match '/data/alternate') { Ok "first-run-checklist mentions both library paths" } else { Fail "first-run-checklist missing library paths" }
-if ($chk -match 'Reload' -or $chk -match 'Scan') { Ok "first-run-checklist mentions Reload/Scan" } else { Fail "first-run-checklist missing Reload/Scan" }
+foreach ($name in @('first-run-checklist.ps1', 'first-run-checklist.sh')) {
+  $chk = Get-Content (Join-Path $Root "scripts\$name") -Raw
+  if ($chk -match 'OpenDocs') { Ok "$name has OpenDocs" } else { Fail "$name missing OpenDocs" }
+  if ($chk -match '/data/primary' -and $chk -match '/data/alternate') { Ok "$name mentions both library paths" } else { Fail "$name missing library paths" }
+  if ($chk -match 'Reload' -or $chk -match 'Scan') { Ok "$name mentions Reload/Scan" } else { Fail "$name missing Reload/Scan" }
+}
 
-# --- README daily update ---
+# --- README daily update + platforms ---
 $readme = Get-Content (Join-Path $Root "README.md") -Raw
 if ($readme -match '日常更新' -and $readme -match 'git pull' -and $readme -match 'install-providers' -and $readme -match 'compose pull') {
   Ok "README has daily update block"
 } else {
   Fail "README missing daily update (pull / install-providers / compose pull)"
 }
+if (($readme -match 'Windows' -or $readme -match '\.ps1') -and ($readme -match 'Linux' -or $readme -match 'macOS' -or $readme -match '\.sh')) {
+  Ok "README mentions Windows ps1 + Linux/macOS sh"
+} else {
+  Fail "README missing platform script notes"
+}
 
-# --- setup.md Profile docs ---
+# --- setup.md ---
 $setup = Get-Content (Join-Path $Root "docs\setup.md") -Raw
 if ($setup -match '-Profile' -and $setup -match 'first-run-checklist') {
   Ok "setup.md documents Profile + checklist"
 } else {
   Fail "setup.md missing Profile or checklist"
+}
+if ($setup -match '\.ps1' -and $setup -match '\.sh') {
+  Ok "setup.md documents ps1 + sh"
+} else {
+  Fail "setup.md missing ps1/sh notes"
 }
 
 Write-Host ""

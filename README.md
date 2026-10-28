@@ -30,6 +30,7 @@
 ```powershell
 cd <本仓库路径>
 .\scripts\bootstrap.ps1
+.\scripts\first-run-checklist.ps1
 .\scripts\start.ps1
 .\scripts\sanity-check.ps1
 ```
@@ -37,6 +38,16 @@ cd <本仓库路径>
 浏览器打开：<http://localhost:9999>（端口可用 `.env` 中 `MV_HOST_PORT` 修改）
 
 首次进入 Web UI 后，按 [`presets/libraries.json.example`](presets/libraries.json.example) 添加两个库路径，并阅读 [`presets/recommended-settings.md`](presets/recommended-settings.md)。
+
+## 日常更新
+
+```powershell
+git pull
+.\scripts\install-providers.ps1 -Profile all
+docker compose pull
+```
+
+（更新镜像后可再执行 `.\scripts\start.ps1`。）
 
 ## 文档
 
@@ -53,7 +64,10 @@ cd <本仓库路径>
 ```powershell
 .\scripts\start.ps1
 .\scripts\stop.ps1
-.\scripts\install-providers.ps1   # 离线/批量备用；日常更推荐 UI Community
+.\scripts\first-run-checklist.ps1
+.\scripts\install-providers.ps1 -Profile all
+.\scripts\install-providers.ps1 -Profile primary
+.\scripts\install-providers.ps1 -Profile alternate
 .\scripts\export-provider-list.ps1
 .\scripts\sanity-check.ps1
 ```

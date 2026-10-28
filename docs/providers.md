@@ -1,6 +1,14 @@
 # 精选 Providers（模糊检索指南）
 
-本页**不写**上游包的完整技术文件名。安装时在 UI 的 Community 源里用下表「搜索词」查找；或运行 `scripts/install-providers.ps1`（包名以 Base64 保存在脚本数组中，缺失则跳过并记入 `scripts/_skip-log.txt`）。
+本页**不写**上游包的完整技术文件名。安装时在 UI 的 Community 源里用下表「搜索词」查找；或运行：
+
+```powershell
+.\scripts\install-providers.ps1 -Profile all
+.\scripts\install-providers.ps1 -Profile primary
+.\scripts\install-providers.ps1 -Profile alternate
+```
+
+包名以 Base64 保存在脚本的 `$PrimaryB64` / `$AlternateB64` 数组中；缺失则跳过并记入 `config/providers/_skip-log.txt`（gitignore）。
 
 ## primary（A 向）— 元数据站 / 目录
 
@@ -55,15 +63,15 @@
 
 ## 可选
 
-| 用途 | UI 搜索词 |
-|------|-----------|
-| 双线厂牌 | `Biphoria` |
+| 用途 | UI 搜索词 | 所属 Profile |
+|------|-----------|--------------|
+| 双线厂牌 | `Biphoria` | primary（随 `-Profile primary` / `all`） |
 
 ## 安装方式优先级
 
 1. **推荐**：Web UI → Settings → Metadata Providers → Community (stable) → 按上表搜索安装。
-2. **备用**：`.\scripts\install-providers.ps1`（clone/zip 社区库后按编码清单复制到 `config/providers`）。
-3. 安装后在 UI 中 **Reload** providers。
+2. **备用**：`.\scripts\install-providers.ps1 -Profile …`（clone/zip 社区库后按编码清单复制到 `config/providers`）。
+3. 安装后在 UI 中 **Reload** providers，再 **Scan**。
 
 导出当前脚本内编码清单（仍为 Base64，不含明文包名文件）：
 

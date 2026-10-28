@@ -42,8 +42,10 @@ config/config.yml
 config/providers/**
 !config/providers/.gitkeep
 !config/README.md
+config/providers/_skip-log.txt
+config/providers/_install-log.txt
 
-# Install logs
+# Install logs (legacy scripts/ path + providers path)
 _MANIFEST.txt
 scripts/_install-log.txt
 scripts/_skip-log.txt

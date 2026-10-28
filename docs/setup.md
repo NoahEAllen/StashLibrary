@@ -18,6 +18,13 @@ cd <MediaVault 根目录>
 .\scripts\bootstrap.ps1
 ```
 
+可选：打印首次勾选清单（不启动 Docker）：
+
+```powershell
+.\scripts\first-run-checklist.ps1
+.\scripts\first-run-checklist.ps1 -OpenDocs   # 用记事本打开本文档
+```
+
 ### 3. 启动
 
 ```powershell
@@ -48,18 +55,35 @@ cd <MediaVault 根目录>
 ### 6. 配置 providers 路径与推荐项
 
 见 [`presets/recommended-settings.md`](../presets/recommended-settings.md)。  
+在 Settings 中将 **Providers Path** 指向配置家目录下的 `providers`（与本仓库 `config/providers` 对应）。
+
 日常安装索引器：UI → Settings → Metadata Providers → **Community (stable)**，按 [providers.md](providers.md) 的模糊关键词搜索安装。
 
-离线批量备用：
+离线 / 批量备用（按分区）：
 
 ```powershell
-.\scripts\install-providers.ps1
+.\scripts\install-providers.ps1                  # 默认 -Profile all
+.\scripts\install-providers.ps1 -Profile primary
+.\scripts\install-providers.ps1 -Profile alternate
 ```
+
+缺失包会跳过，日志写入 `config/providers/_skip-log.txt`（已 gitignore，勿提交）。
+
+安装后在 UI 中 **Reload** providers，再对两个库执行 **Scan**。
 
 ### 7. 自检
 
 ```powershell
 .\scripts\sanity-check.ps1
+```
+
+## 日常更新
+
+```powershell
+git pull
+.\scripts\install-providers.ps1 -Profile all
+docker compose pull
+.\scripts\start.ps1
 ```
 
 ## 停止

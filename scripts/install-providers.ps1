@@ -2,9 +2,14 @@
 <#
 .SYNOPSIS
   从社区元数据仓库拉取精选 providers 到 config/providers。
-  包名与上游 URL 均为 Base64；缺失项跳过并写入 scripts/_skip-log.txt。
+  包名与上游 URL 均为 Base64；缺失项跳过并写入 config/providers/_skip-log.txt。
+
+.PARAMETER Profile
+  primary | alternate | all（默认 all）
 #>
 param(
+  [ValidateSet('primary', 'alternate', 'all')]
+  [string]$Profile = 'all',
   [string]$Dest = "",
   [string]$WorkDir = ""
 )
@@ -18,9 +23,9 @@ function Decode-Name([string]$b64) {
   return [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($b64))
 }
 
-# Selected package names (Base64 only in source)
-$SelectedB64 = @(
-  # primary indexes
+# --- primary partition packages (Base64 only) ---
+$PrimaryB64 = @(
+  # indexes
   "SmF2TGlicmFyeS55bWw=",
   "SmF2TGlicmFyeV9weXRob24=",
   "SmF2QnVzLnltbA==",
@@ -30,18 +35,24 @@ $SelectedB64 = @(
   "UjE4LmRldi55bWw=",
   "SUFGRA==",
   "QWR1bHRFbXBpcmUueW1s",
-  # primary studios
+  # studios
   "QnJhenplcnM=",
   "QmFuZ0Jyb3M=",
   "QWR1bHRUaW1l",
   "RmFrZUh1Yg==",
   "RXZpbEFuZ2Vs",
   "RGlnaXRhbFBsYXlncm91bmQ=",
-  # alternate indexes
+  # optional shared
+  "QmlwaG9yaWE="
+)
+
+# --- alternate partition packages (Base64 only) ---
+$AlternateB64 = @(
+  # indexes
   "R0VWSQ==",
   "R2F5QWR1bHRFbXBpcmUueW1s",
   "R2F5V2lyZQ==",
-  # alternate studios
+  # studios
   "RmFsY29uU3R1ZGlvcw==",
   "SGVsaXhTdHVkaW9zLnltbA==",
   "Q29ja3lCb3lzLnltbA==",
@@ -56,10 +67,15 @@ $SelectedB64 = @(
   "Q3plY2hIdW50ZXI=",
   "Qm95TmFwcGVk",
   "QmxhY2tNYWxlTWU=",
-  "TWVu",
-  # optional
-  "QmlwaG9yaWE="
+  "TWVu"
 )
+
+$SelectedB64 = @()
+switch ($Profile.ToLowerInvariant()) {
+  'primary'   { $SelectedB64 = $PrimaryB64 }
+  'alternate' { $SelectedB64 = $AlternateB64 }
+  default     { $SelectedB64 = $PrimaryB64 + $AlternateB64 }
+}
 
 $Selected = $SelectedB64 | ForEach-Object { Decode-Name $_ }
 
@@ -70,7 +86,7 @@ $ZipUrl  = Decode-Name "aHR0cHM6Ly9naXRodWIuY29tL3N0YXNoYXBwL0NvbW11bml0eVNjcmFw
 $PkgDir  = Decode-Name "c2NyYXBlcnM="
 $ZipRoot = Decode-Name "Q29tbXVuaXR5U2NyYXBlcnMtbWFzdGVy"
 
-Write-Host "==> providers → $Dest" -ForegroundColor Cyan
+Write-Host "==> providers → $Dest  (Profile=$Profile)" -ForegroundColor Cyan
 Write-Host "    源：社区元数据仓库（URL 已编码）" -ForegroundColor DarkGray
 
 $haveGit = [bool](Get-Command git -ErrorAction SilentlyContinue)
@@ -105,8 +121,8 @@ if (-not (Test-Path $srcRoot)) { throw "找不到社区包目录：$srcRoot" }
 
 $ok = 0
 $skip = 0
-$skipLog = Join-Path $PSScriptRoot "_skip-log.txt"
-$okLog = Join-Path $PSScriptRoot "_install-log.txt"
+$skipLog = Join-Path $Dest "_skip-log.txt"
+$okLog = Join-Path $Dest "_install-log.txt"
 $skipLines = @()
 $okLines = @()
 $stamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -116,7 +132,7 @@ foreach ($name in $Selected) {
   if (-not (Test-Path $src)) {
     Write-Host "  SKIP  (missing upstream)" -ForegroundColor Yellow
     $skip++
-    $skipLines += "[$stamp] MISSING $name"
+    $skipLines += "[$stamp] MISSING profile=$Profile $name"
     continue
   }
   $target = Join-Path $Dest $name
@@ -128,14 +144,14 @@ foreach ($name in $Selected) {
   }
   Write-Host "  OK    $name" -ForegroundColor Green
   $ok++
-  $okLines += "[$stamp] OK $name"
+  $okLines += "[$stamp] OK profile=$Profile $name"
 }
 
 $okLines | Set-Content -Path $okLog -Encoding UTF8
 $skipLines | Set-Content -Path $skipLog -Encoding UTF8
 
 Write-Host ""
-Write-Host "完成：复制 $ok 项，跳过 $skip 项。" -ForegroundColor Cyan
+Write-Host "完成：Profile=$Profile，复制 $ok 项，跳过 $skip 项。" -ForegroundColor Cyan
 Write-Host "日志：$okLog / $skipLog" -ForegroundColor DarkGray
 Write-Host "请到 MediaVault UI 重新加载 providers。" -ForegroundColor Green
 Write-Host "（更推荐平时用 UI：Metadata Providers → Community stable）" -ForegroundColor DarkGray

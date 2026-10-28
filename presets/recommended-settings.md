@@ -16,7 +16,7 @@
 |----|------|
 | Providers 目录 | 配置家目录下的 `providers` 子目录（与本仓库 `config/providers` 对应） |
 | 来源 | Community (stable) |
-| 安装集合 | 见 [docs/providers.md](../docs/providers.md) 模糊搜索词；或跑 `install-providers.ps1` |
+| 安装集合 | 见 [docs/providers.md](../docs/providers.md)；或 `install-providers.ps1 -Profile primary|alternate|all` |
 
 ## 生成与缓存
 

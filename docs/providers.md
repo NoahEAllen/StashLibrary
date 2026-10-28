@@ -104,3 +104,13 @@
 ```
 
 然后在 UI 中 **Reload** providers。说明见该目录下 `README.md` 与 [architecture.md](architecture.md)。
+
+
+## 图册 / 图片元数据（albums）
+
+Community (stable) 中不少包同时支持 **gallery**（图册）与 **image** 刮削（按 URL 或已有片段匹配）。安装后：
+
+1. UI → Metadata Providers → Reload
+2. 打开某本图册 → Edit → Scrape / 粘贴来源 URL
+
+本地 `asia-catalog` 骨架目前偏作品编号（成片）；图册优先用 Community 包。若你指定资料站，可再在 `config/providers-src/` 加 album 骨架。

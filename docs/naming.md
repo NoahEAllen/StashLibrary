@@ -12,7 +12,16 @@
 | B 向 | `library/alternate/studios` | 明确厂牌成片 |
 | B 向 | `library/alternate/western` | 欧美 alternate 线 |
 | B 向 | `library/alternate/indie` | 独立 / 业余 |
+| A 向 | `library/primary/albums` | 图册 / 图片集（按子文件夹或 zip 成册） |
+| B 向 | `library/alternate/albums` | 图册 / 图片集 |
 | 投递 | `library/_inbox` | 尚未决定分区时暂存 |
+
+## 图册（图片）
+
+- 每个子文件夹可视为一本图册；或把整本打成 **zip**（建议 store/无压缩）放入 `albums/`。
+- 需要强制成册时，在文件夹内放空文件 `.forcegallery`（全小写）。
+- 封面图可用文件名以 `cover.jpg` 结尾的图片。
+- 图册也走同一套分区：`primary/albums` 与 `alternate/albums`。
 
 ## 文件名建议
 

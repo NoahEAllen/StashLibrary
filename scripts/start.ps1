@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   写入 gitignored .env（含解码后的镜像与路径键），然后 docker compose up -d。

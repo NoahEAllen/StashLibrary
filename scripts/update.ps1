@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   git pull（若是 git 仓）+ docker compose pull + up -d；默认顺带刷新 providers。

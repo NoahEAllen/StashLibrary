@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   打印首次部署勾选清单（不启动 Docker）。可选 -OpenDocs 用记事本打开 docs/setup.md。
@@ -67,7 +67,7 @@ Write-Host "       .\scripts\install-providers.ps1 -Profile primary"
 Write-Host "       .\scripts\install-providers.ps1 -Profile alternate"
 Write-Host " 8. （可选）.\scripts\install-local-providers.ps1  # asia-catalog 骨架"
 Write-Host " 9. UI 中 Reload providers"
-Write-Host "10. 对两个 Library 执行 Scan；或配置 API Key 后用 auto-scan："
+Write-Host "10. 对两个 Library 执行 Scan（勾选 Images；开启文件夹成册；图册放 library/*/albums）；或配置 API Key 后用 auto-scan："
 Write-Host "       UI → Settings → 生成 API Key → 写入 .env 的 MV_API_KEY"
 Write-Host "       .\scripts\auto-scan.ps1"
 Write-Host "       .\scripts\watch-inbox.ps1 -Once   # 可选：监视 _inbox"

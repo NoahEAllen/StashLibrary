@@ -21,9 +21,11 @@ required=(
   "library/primary/asia"
   "library/primary/western"
   "library/primary/indie"
+  "library/primary/albums"
   "library/alternate/studios"
   "library/alternate/western"
   "library/alternate/indie"
+  "library/alternate/albums"
   "library/_inbox"
   "config/providers"
   "metadata"
@@ -251,6 +253,8 @@ echo "$setup" | grep -q 'MV_API_KEY' && echo "$setup" | grep -q 'auto-scan' \
   && ok "setup.md documents API Key + auto-scan" || fail "setup.md missing auto-scan section"
 echo "$setup" | grep -Eqi 'cron|任务计划' && ok "setup.md has scheduler example" || fail "setup.md missing cron/task example"
 echo "$setup" | grep -q 'install-local-providers' && ok "setup.md documents local providers" || fail "setup.md missing local providers"
+if grep -q albums docs/setup.md && grep -q Images docs/setup.md; then ok "setup.md documents albums + Images scan"; else fail "setup.md missing albums/Images scan notes"; fi
+if grep -q albums docs/naming.md; then ok "naming.md documents albums"; else fail "naming.md missing albums"; fi
 
 envex="$(cat "$ROOT/.env.example")"
 echo "$envex" | grep -q 'MV_API_KEY' && ok ".env.example mentions MV_API_KEY" || fail ".env.example missing MV_API_KEY"
@@ -264,7 +268,9 @@ cnt="$(grep -E '^[A-Za-z0-9+/=]{8,}$' "$ROOT/presets/provider-list.b64.txt" | wc
 
 echo ""
 if [[ "$failed" -gt 0 ]]; then
-  echo "sanity-check FAILED: $failed issue(s)"
+  echo "
+
+sanity-check FAILED: $failed issue(s)"
   exit 1
 else
   echo "sanity-check PASSED"

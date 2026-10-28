@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   结构完整性 + 明文敏感词扫描（脚本内 Base64 载荷允许）。
@@ -252,6 +252,10 @@ if ($setup -match 'cron' -or $setup -match 'Task Scheduler' -or $setup -match 's
 } else { Fail "setup.md missing cron/task example" }
 if ($setup -match 'install-local-providers') {
   Ok "setup.md documents local providers"
+$setupAlbums = Get-Content (Join-Path $Root "docs\setup.md") -Raw -ErrorAction SilentlyContinue
+if ($setupAlbums -match 'albums' -and $setupAlbums -match 'Images') { Ok "setup.md documents albums + Images scan" } else { Fail "setup.md missing albums/Images scan notes" }
+$namingAlbums = Get-Content (Join-Path $Root "docs\naming.md") -Raw -ErrorAction SilentlyContinue
+if ($namingAlbums -match 'albums') { Ok "naming.md documents albums" } else { Fail "naming.md missing albums" }
 } else { Fail "setup.md missing local providers" }
 
 Write-Host ""

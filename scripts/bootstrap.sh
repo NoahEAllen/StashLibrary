@@ -7,7 +7,8 @@ cd "$ROOT"
 dirs=(
   "library/primary/asia"
   "library/primary/western"
-  "library/primary/indie"
+  "library/primary/indie
+library/primary/albums"
   "library/alternate/studios"
   "library/alternate/western"
   "library/alternate/indie"

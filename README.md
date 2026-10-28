@@ -1,6 +1,6 @@
 # MediaVault
 
-本地媒体**编目工程**：以官方运行时镜像为底座，本仓库提供双分区片库布局、精选元数据 providers 安装脚本与运维说明。
+本地媒体**编目工程**：以官方运行时镜像为底座，本仓库提供双分区片库布局（**视频 + 图册**）、精选元数据 providers 安装脚本与运维说明。
 
 - **不是**上游应用源码的 fork / 移植（升级靠官方镜像 `docker compose pull`）。
 - **是** docker-compose + 工程化脚手架：`primary`（A 向）与 `alternate`（B 向）两套 Library，Community 精选包、本地 `asia-catalog` 骨架，以及 GraphQL 自动扫描脚本。
@@ -20,8 +20,8 @@
 
 | 路径 | 用途 |
 |------|------|
-| `library/primary/` | A 向媒体（`asia` / `western` / `indie`） |
-| `library/alternate/` | B 向媒体（`studios` / `western` / `indie`） |
+| `library/primary/` | A 向媒体（`asia` / `western` / `indie` / `albums` 图册） |
+| `library/alternate/` | B 向媒体（`studios` / `western` / `indie` / `albums` 图册） |
 | `library/_inbox/` | 待整理投递区 |
 | `config/` | 服务配置；`providers/` 落盘处；`providers-src/` 本地 provider 源 |
 | `metadata/` `cache/` `blobs/` `generated/` | 运行时数据（默认不进 Git） |

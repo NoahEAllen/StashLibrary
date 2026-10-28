@@ -8,7 +8,10 @@
 |----|--------|
 | Library 1 | `/data/primary` |
 | Library 2 | `/data/alternate` |
-| 扫描 | 首次 Full Scan；之后按需 |
+| 扫描 | 首次 Full Scan（**勾选扫描图片/Images**）；之后按需 |
+| 文件夹成册 | 开启「从含图片的文件夹创建图册」类选项；单文件夹可用 `.forcegallery` 覆盖 |
+
+同一 Library 路径下既可放视频子目录，也可放 `albums/` 图片；无需单独再建第三个库，除非你想物理隔离。
 
 ## Metadata Providers
 
@@ -17,6 +20,7 @@
 | Providers 目录 | 配置家目录下的 `providers` 子目录（与本仓库 `config/providers` 对应） |
 | 来源 | Community (stable) |
 | 安装集合 | 见 [docs/providers.md](../docs/providers.md)；或 `install-providers.ps1 / .sh -Profile primary|alternate|all` |
+| 图册/图片索引 | Community (stable) 中搜索 gallery / image / album 相关包并安装；图册详情页可用 Scrape / URL 刮削 |
 
 ## 生成与缓存
 

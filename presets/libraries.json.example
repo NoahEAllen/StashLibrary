@@ -5,13 +5,13 @@
       "name": "Primary",
       "path": "/data/primary",
       "zone": "primary",
-      "hint": "A-orient media: asia / western / indie subfolders"
+      "hint": "A-orient media: asia / western / indie / albums subfolders"
     },
     {
       "name": "Alternate",
       "path": "/data/alternate",
       "zone": "alternate",
-      "hint": "B-orient media: studios / western / indie subfolders"
+      "hint": "B-orient media: studios / western / indie / albums subfolders"
     }
   ],
   "optional_inbox": {

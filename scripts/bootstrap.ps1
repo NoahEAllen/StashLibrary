@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   补齐 MediaVault 目录结构。
@@ -11,9 +11,11 @@ $dirs = @(
   "library\primary\asia",
   "library\primary\western",
   "library\primary\indie",
+  "library\primary\albums",
   "library\alternate\studios",
   "library\alternate\western",
   "library\alternate\indie",
+  "library\alternate\albums",
   "library\_inbox",
   "config\providers",
   "metadata",

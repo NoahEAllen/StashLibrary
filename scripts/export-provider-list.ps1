@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   导出精选清单：默认只写 Base64（可提交）；加 -Decode 则打印到控制台（勿重定向进仓库）。

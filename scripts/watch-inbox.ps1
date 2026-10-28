@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   轮询 library\_inbox；发现新媒体则调用 auto-scan（默认 /data/_inbox）。

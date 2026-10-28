@@ -96,3 +96,7 @@ docker compose pull
 - 不做完整第三方中文扩展的源码移植；只提供本地编号解析骨架。
 - 不在 Git 中存放媒体文件、运行时库、`.env` 明文镜像名。
 - 不在文档或文件名中暴露敏感题材关键词（见 `sanity-check`）。
+
+## 图册与图片
+
+运行时原生支持图片与图册（文件夹成册、zip、`.forcegallery`）。本仓库在 `library/*/albums` 提供约定路径；刮削走 Community gallery/image providers，与成片 providers 同一套安装通道。

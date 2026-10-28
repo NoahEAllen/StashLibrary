@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   将 config/providers-src/* 复制到 config/providers/（本地自定义 provider）。

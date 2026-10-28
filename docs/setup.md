@@ -63,7 +63,9 @@ cd <MediaVault 根目录>
 | Primary | `/data/primary` |
 | Alternate | `/data/alternate` |
 
-子目录约定见 [naming.md](naming.md)。
+子目录约定见 [naming.md](naming.md)。视频与**图册**可放在同一 Library 下：图片放 `primary/albums` 或 `alternate/albums`（子文件夹或 zip）。
+
+扫描时在 UI 勾选 **Images**；并开启「从含图片的文件夹创建图册」。也可用空文件 `.forcegallery` 强制某文件夹成册。
 
 ### 6. 配置 providers 路径与推荐项
 

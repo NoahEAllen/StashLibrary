@@ -216,11 +216,11 @@ foreach ($name in @('watch-inbox.ps1', 'watch-inbox.sh')) {
 }
 
 $arch = Get-Content (Join-Path $Root "docs\architecture.md") -Raw
-if ($arch -match 'compose pull' -and ($arch -match 'vendoring' -or $arch -match '不包含')) {
+if ($arch -match 'compose pull' -and ($arch -match 'vendoring' -or $arch -match 'upstream')) {
   Ok "architecture explains no-vendoring + compose pull"
 } else { Fail "architecture missing upgrade/vendoring notes" }
 if ($arch -match 'asia-catalog') { Ok "architecture mentions asia-catalog" } else { Fail "architecture missing asia-catalog" }
-if ($arch -match 'metadataScan' -or $arch -match '自动扫描' -or $arch -match 'GraphQL') {
+if ($arch -match 'metadataScan' -or $arch -match 'GraphQL' -or $arch -match 'auto-scan') {
   Ok "architecture mentions auto-scan/GraphQL"
 } else { Fail "architecture missing auto-scan" }
 
@@ -247,7 +247,7 @@ if ($setup -match '\.ps1' -and $setup -match '\.sh') {
 if ($setup -match 'MV_API_KEY' -and $setup -match 'auto-scan') {
   Ok "setup.md documents API Key + auto-scan"
 } else { Fail "setup.md missing auto-scan section" }
-if ($setup -match 'cron' -or $setup -match '任务计划') {
+if ($setup -match 'cron' -or $setup -match 'Task Scheduler' -or $setup -match 'schtasks') {
   Ok "setup.md has scheduler example"
 } else { Fail "setup.md missing cron/task example" }
 if ($setup -match 'install-local-providers') {

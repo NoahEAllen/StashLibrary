@@ -158,7 +158,7 @@ MV_API_KEY=粘贴你的密钥
 ./scripts/watch-inbox.sh --Once
 ```
 
-### 7.4 计划任务 / cron（中性示例）
+### 7.4 计划任务 / cron / Task Scheduler（中性示例）
 
 **Linux crontab**（每小时整点扫一次全库；请先写好 `MV_API_KEY`）：
 

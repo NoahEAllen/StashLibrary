@@ -59,3 +59,8 @@ Desktop.ini
 .idea/
 *.swp
 *~
+
+# auto-scan / watch-inbox local state
+cache/_inbox-watch.state
+cache/auto-scan.log
+cache/watch-inbox.log

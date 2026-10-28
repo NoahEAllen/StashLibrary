@@ -6,6 +6,7 @@
 - **Windows**：PowerShell 5.1+（用 `scripts/*.ps1`）
 - **Linux / macOS**：bash（用 `scripts/*.sh`，先 `chmod +x scripts/*.sh`）
 - 可选：`git`（`install-providers` 优先用 git；没有则自动下 zip）
+- 自动扫描可选：`curl`（Linux）或 PowerShell `Invoke-RestMethod`
 
 ## 步骤
 
@@ -85,9 +86,19 @@ cd <MediaVault 根目录>
 ./scripts/install-providers.sh -Profile alternate
 ```
 
+本地自定义骨架（亚洲作品编号，`asia-catalog`）：
+
+```powershell
+.\scripts\install-local-providers.ps1
+```
+
+```bash
+./scripts/install-local-providers.sh
+```
+
 缺失包会跳过，日志写入 `config/providers/_skip-log.txt`（已 gitignore，勿提交）。
 
-安装后在 UI 中 **Reload** providers，再对两个库执行 **Scan**。
+安装后在 UI 中 **Reload** providers，再对两个库执行 **Scan**（或用下方自动扫描）。
 
 ### 7. 自检
 
@@ -98,6 +109,76 @@ cd <MediaVault 根目录>
 ```bash
 ./scripts/sanity-check.sh
 ```
+
+## 自动扫描（GraphQL）
+
+不必每次打开 UI 点 Scan。编目服务提供 GraphQL mutation `metadataScan`。
+
+### 7.1 生成 API Key 并写入 `.env`
+
+1. 打开 Web UI → **Settings → Security / Authentication**（以你安装的版本菜单为准）。
+2. 生成 **API Key**，复制。
+3. 编辑仓库根目录 `.env`（若无则先跑一次 `start`），增加或修改：
+
+```env
+MV_API_KEY=粘贴你的密钥
+# 可选；默认按 MV_HOST_PORT 拼 localhost
+# MV_GRAPHQL_URL=http://localhost:9999/graphql
+```
+
+`.env` 已被 gitignore，不要提交密钥。
+
+### 7.2 手动触发扫描
+
+```powershell
+.\scripts\auto-scan.ps1
+.\scripts\auto-scan.ps1 -Paths "/data/primary,/data/alternate"
+.\scripts\auto-scan.ps1 -Paths "/data/_inbox" -Rescan
+```
+
+```bash
+./scripts/auto-scan.sh
+./scripts/auto-scan.sh --Paths /data/primary,/data/alternate
+./scripts/auto-scan.sh --Paths /data/_inbox --Rescan
+```
+
+成功时响应里会有 `metadataScan` 返回的 job id。
+
+### 7.3 监视投递区（可选）
+
+把新媒体丢进 `library/_inbox/`，脚本轮询后只扫容器路径 `/data/_inbox`：
+
+```powershell
+.\scripts\watch-inbox.ps1 -Interval 60
+.\scripts\watch-inbox.ps1 -Once
+```
+
+```bash
+./scripts/watch-inbox.sh --Interval 60
+./scripts/watch-inbox.sh --Once
+```
+
+### 7.4 计划任务 / cron（中性示例）
+
+**Linux crontab**（每小时整点扫一次全库；请先写好 `MV_API_KEY`）：
+
+```cron
+0 * * * * cd /path/to/MediaVault && ./scripts/auto-scan.sh >> cache/auto-scan.log 2>&1
+```
+
+持续监视 inbox（建议用 systemd user service 或 screen/tmux；下面为每分钟检查一次的简化 cron）：
+
+```cron
+* * * * * cd /path/to/MediaVault && ./scripts/watch-inbox.sh --Once >> cache/watch-inbox.log 2>&1
+```
+
+**Windows 任务计划程序**：操作选「启动程序」，程序填 `powershell.exe`，参数示例：
+
+```text
+-NoProfile -ExecutionPolicy Bypass -File "D:\path\to\MediaVault\scripts\auto-scan.ps1"
+```
+
+触发器可设为每小时或登录后。
 
 ## 日常更新
 
@@ -111,6 +192,13 @@ cd <MediaVault 根目录>
 ```bash
 ./scripts/update.sh
 ./scripts/update.sh -SkipProviders
+```
+
+仅升级官方运行时镜像：
+
+```bash
+docker compose pull
+./scripts/start.sh
 ```
 
 ## 停止

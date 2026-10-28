@@ -1,6 +1,4 @@
-﻿# Keep shell scripts LF for Linux/macOS deploy
 *.sh text eol=lf
-*.ps1 text eol=crlf
-*.md text
-.dockerignore text
-.env.example text
+*.py text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf

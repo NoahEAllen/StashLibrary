@@ -30,6 +30,8 @@ $hasEnv = Test-Path (Join-Path $Root ".env")
 $hasPrimary = Test-Path (Join-Path $Root "library\primary")
 $hasAlternate = Test-Path (Join-Path $Root "library\alternate")
 $hasProvidersDir = Test-Path (Join-Path $Root "config\providers")
+$hasAsiaCatalog = Test-Path (Join-Path $Root "config\providers-src\asia-catalog")
+$hasAutoScan = Test-Path (Join-Path $Root "scripts\auto-scan.ps1")
 $hasCompose = Test-Path (Join-Path $Root "docker-compose.yml")
 $hasSetup = Test-Path $SetupDoc
 
@@ -42,6 +44,8 @@ Mark $hasEnvExample  ".env.example 存在"
 Mark $hasPrimary     "library/primary 存在"
 Mark $hasAlternate   "library/alternate 存在"
 Mark $hasProvidersDir "config/providers 存在"
+Mark $hasAsiaCatalog "config/providers-src/asia-catalog 存在"
+Mark $hasAutoScan    "scripts/auto-scan.ps1 存在"
 Mark $hasSetup       "docs/setup.md 存在"
 
 Write-Host ""
@@ -61,10 +65,14 @@ Write-Host "       UI Community (stable)  或"
 Write-Host "       .\scripts\install-providers.ps1 -Profile all"
 Write-Host "       .\scripts\install-providers.ps1 -Profile primary"
 Write-Host "       .\scripts\install-providers.ps1 -Profile alternate"
-Write-Host " 8. UI 中 Reload providers"
-Write-Host " 9. 对两个 Library 执行 Scan（首次 Full Scan）"
-Write-Host "10. .\scripts\sanity-check.ps1（可选）"
-Write-Host "11. 日常：.\scripts\update.ps1   （可选 -SkipProviders；Linux 用 update.sh）"
+Write-Host " 8. （可选）.\scripts\install-local-providers.ps1  # asia-catalog 骨架"
+Write-Host " 9. UI 中 Reload providers"
+Write-Host "10. 对两个 Library 执行 Scan；或配置 API Key 后用 auto-scan："
+Write-Host "       UI → Settings → 生成 API Key → 写入 .env 的 MV_API_KEY"
+Write-Host "       .\scripts\auto-scan.ps1"
+Write-Host "       .\scripts\watch-inbox.ps1 -Once   # 可选：监视 _inbox"
+Write-Host "11. .\scripts\sanity-check.ps1（可选）"
+Write-Host "12. 日常：.\scripts\update.ps1   （可选 -SkipProviders；Linux 用 update.sh）"
 
 Write-Host ""
 Write-Host "跳过日志（安装后）：config/providers/_skip-log.txt（已 gitignore）" -ForegroundColor DarkGray

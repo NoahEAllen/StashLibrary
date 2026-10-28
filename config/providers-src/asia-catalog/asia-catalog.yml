@@ -1,0 +1,29 @@
+# MediaVault local provider — Asia catalog code helper (script action).
+# Install via scripts/install-local-providers into config/providers/asia-catalog/
+name: Asia Catalog
+sceneByName:
+  action: script
+  script:
+    - python
+    - asia_catalog.py
+    - search
+sceneByQueryFragment:
+  action: script
+  script:
+    - python
+    - asia_catalog.py
+    - fragment
+sceneByFragment:
+  action: script
+  script:
+    - python
+    - asia_catalog.py
+    - query
+sceneByURL:
+  - action: script
+    url:
+      - r18.dev
+    script:
+      - python
+      - asia_catalog.py
+      - url

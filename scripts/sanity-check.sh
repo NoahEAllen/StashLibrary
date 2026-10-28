@@ -53,6 +53,15 @@ required=(
   "scripts/first-run-checklist.sh"
   "scripts/sanity-check.sh"
   "scripts/update.sh"
+  "scripts/install-local-providers.ps1"
+  "scripts/install-local-providers.sh"
+  "scripts/auto-scan.ps1"
+  "scripts/auto-scan.sh"
+  "scripts/watch-inbox.ps1"
+  "scripts/watch-inbox.sh"
+  "config/providers-src/asia-catalog/asia-catalog.yml"
+  "config/providers-src/asia-catalog/asia_catalog.py"
+  "config/providers-src/asia-catalog/README.md"
 )
 
 for r in "${required[@]}"; do
@@ -209,11 +218,46 @@ echo "$readme" | grep -q '日常更新' && echo "$readme" | grep -q 'git pull' \
 echo "$readme" | grep -Eqi 'Windows|\.ps1' && echo "$readme" | grep -Eqi 'Linux|macOS|\.sh' \
   && ok "README mentions Windows ps1 + Linux/macOS sh" || fail "README missing platform script notes"
 
+# local providers + auto-scan
+for s in install-local-providers.ps1 install-local-providers.sh; do
+  raw="$(cat "$ROOT/scripts/$s")"
+  echo "$raw" | grep -q 'providers-src'     && ok "$s copies providers-src" || fail "$s missing providers-src copy logic"
+done
+
+for s in auto-scan.ps1 auto-scan.sh; do
+  raw="$(cat "$ROOT/scripts/$s")"
+  echo "$raw" | grep -q 'metadataScan' && ok "$s uses metadataScan" || fail "$s missing metadataScan"
+  echo "$raw" | grep -q 'MV_API_KEY' && ok "$s reads MV_API_KEY" || fail "$s missing MV_API_KEY"
+  echo "$raw" | grep -Eqi 'ApiKey' && ok "$s sends ApiKey header" || fail "$s missing ApiKey header"
+done
+
+for s in watch-inbox.ps1 watch-inbox.sh; do
+  raw="$(cat "$ROOT/scripts/$s")"
+  echo "$raw" | grep -q '_inbox' && ok "$s watches _inbox" || fail "$s missing _inbox"
+  echo "$raw" | grep -Eq 'auto-scan' && ok "$s calls auto-scan" || fail "$s missing auto-scan call"
+done
+
+arch="$(cat "$ROOT/docs/architecture.md")"
+echo "$arch" | grep -q 'compose pull' && echo "$arch" | grep -Eq 'vendoring|不包含'   && ok "architecture explains no-vendoring + compose pull" || fail "architecture missing upgrade/vendoring notes"
+echo "$arch" | grep -q 'asia-catalog' && ok "architecture mentions asia-catalog" || fail "architecture missing asia-catalog"
+echo "$arch" | grep -Eq 'metadataScan|自动扫描|GraphQL'   && ok "architecture mentions auto-scan/GraphQL" || fail "architecture missing auto-scan"
+
 setup="$(cat "$ROOT/docs/setup.md")"
 echo "$setup" | grep -q '\-Profile' && echo "$setup" | grep -q 'first-run-checklist' \
   && ok "setup.md documents Profile + checklist" || fail "setup.md missing Profile or checklist"
 echo "$setup" | grep -Eqi '\.ps1' && echo "$setup" | grep -Eqi '\.sh' \
   && ok "setup.md documents ps1 + sh" || fail "setup.md missing ps1/sh notes"
+echo "$setup" | grep -q 'MV_API_KEY' && echo "$setup" | grep -q 'auto-scan' \
+  && ok "setup.md documents API Key + auto-scan" || fail "setup.md missing auto-scan section"
+echo "$setup" | grep -Eqi 'cron|任务计划' && ok "setup.md has scheduler example" || fail "setup.md missing cron/task example"
+echo "$setup" | grep -q 'install-local-providers' && ok "setup.md documents local providers" || fail "setup.md missing local providers"
+
+envex="$(cat "$ROOT/.env.example")"
+echo "$envex" | grep -q 'MV_API_KEY' && ok ".env.example mentions MV_API_KEY" || fail ".env.example missing MV_API_KEY"
+
+yml="$(cat "$ROOT/config/providers-src/asia-catalog/asia-catalog.yml")"
+echo "$yml" | grep -q 'action: script' && echo "$yml" | grep -q 'asia_catalog.py' \
+  && ok "asia-catalog.yml is script provider" || fail "asia-catalog.yml unexpected"
 
 cnt="$(grep -E '^[A-Za-z0-9+/=]{8,}$' "$ROOT/presets/provider-list.b64.txt" | wc -l | tr -d ' ')"
 [[ "$cnt" -ge 30 ]] && ok "provider-list.b64.txt has $cnt entries" || fail "provider-list.b64.txt too few ($cnt)"

@@ -2,8 +2,8 @@
 
 本地媒体**编目工程**：以官方运行时镜像为底座，本仓库提供双分区片库布局、精选元数据 providers 安装脚本与运维说明。
 
-- **不是**上游应用源码的 fork / 移植。
-- **是** docker-compose + 工程化脚手架：`primary`（A 向）与 `alternate`（B 向）两套 Library，配合 Community 精选索引包。
+- **不是**上游应用源码的 fork / 移植（升级靠官方镜像 `docker compose pull`）。
+- **是** docker-compose + 工程化脚手架：`primary`（A 向）与 `alternate`（B 向）两套 Library，Community 精选包、本地 `asia-catalog` 骨架，以及 GraphQL 自动扫描脚本。
 
 适合推到**私有** Git 仓库，再在目标电脑部署。目录命名刻意中性，外人打开不易联想到具体题材。
 
@@ -23,11 +23,11 @@
 | `library/primary/` | A 向媒体（`asia` / `western` / `indie`） |
 | `library/alternate/` | B 向媒体（`studios` / `western` / `indie`） |
 | `library/_inbox/` | 待整理投递区 |
-| `config/` | 服务配置；`config/providers/` 为元数据索引器落盘处 |
+| `config/` | 服务配置；`providers/` 落盘处；`providers-src/` 本地 provider 源 |
 | `metadata/` `cache/` `blobs/` `generated/` | 运行时数据（默认不进 Git） |
 | `presets/` | 双库路径、共享 Base64 清单与推荐设置 |
 | `docs/` | 中文文档 |
-| `scripts/` | 引导 / 启停 / 安装 providers / 更新 / 自检（ps1 + sh） |
+| `scripts/` | 引导 / 启停 / providers / 本地骨架 / 自动扫描 / 更新 / 自检（ps1 + sh） |
 
 容器内媒体根路径为 **`/data`**：
 
@@ -60,6 +60,8 @@ chmod +x scripts/*.sh
 浏览器打开：<http://localhost:9999>（端口可用 `.env` 中 `MV_HOST_PORT` 修改）
 
 首次进入 Web UI 后，按 [`presets/libraries.json.example`](presets/libraries.json.example) 添加两个库路径，并阅读 [`presets/recommended-settings.md`](presets/recommended-settings.md)。
+
+API Key 写入 `.env` 的 `MV_API_KEY` 后，可用 `scripts/auto-scan` / `watch-inbox` 触发 GraphQL `metadataScan`（见 setup 文档）。本地编号骨架：`install-local-providers`。
 
 ## 日常更新
 
@@ -107,6 +109,9 @@ start（ensure .env + up -d）
 .\scripts\install-providers.ps1 -Profile all
 .\scripts\install-providers.ps1 -Profile primary
 .\scripts\install-providers.ps1 -Profile alternate
+.\scripts\install-local-providers.ps1
+.\scripts\auto-scan.ps1
+.\scripts\watch-inbox.ps1 -Once
 .\scripts\export-provider-list.ps1
 .\scripts\sanity-check.ps1
 ```
@@ -120,6 +125,9 @@ start（ensure .env + up -d）
 ./scripts/install-providers.sh -Profile all
 ./scripts/install-providers.sh -Profile primary
 ./scripts/install-providers.sh -Profile alternate
+./scripts/install-local-providers.sh
+./scripts/auto-scan.sh
+./scripts/watch-inbox.sh --Once
 ./scripts/sanity-check.sh
 ```
 

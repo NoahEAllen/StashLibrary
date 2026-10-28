@@ -86,3 +86,21 @@
 ```powershell
 .\scripts\export-provider-list.ps1
 ```
+
+
+## 本地骨架：asia-catalog
+
+本仓自带轻量自定义 provider（亚洲作品编号解析 + URL 模板），**不是**第三方中文扩展的源码移植。
+
+源码目录：`config/providers-src/asia-catalog/`  
+安装到运行时目录：
+
+```powershell
+.\scripts\install-local-providers.ps1
+```
+
+```bash
+./scripts/install-local-providers.sh
+```
+
+然后在 UI 中 **Reload** providers。说明见该目录下 `README.md` 与 [architecture.md](architecture.md)。

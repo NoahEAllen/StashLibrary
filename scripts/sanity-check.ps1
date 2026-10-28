@@ -60,7 +60,16 @@ $required = @(
   "scripts\install-providers.sh",
   "scripts\first-run-checklist.sh",
   "scripts\sanity-check.sh",
-  "scripts\update.sh"
+  "scripts\update.sh",
+  "scripts\install-local-providers.ps1",
+  "scripts\install-local-providers.sh",
+  "scripts\auto-scan.ps1",
+  "scripts\auto-scan.sh",
+  "scripts\watch-inbox.ps1",
+  "scripts\watch-inbox.sh",
+  "config\providers-src\asia-catalog\asia-catalog.yml",
+  "config\providers-src\asia-catalog\asia_catalog.py",
+  "config\providers-src\asia-catalog\README.md"
 )
 foreach ($r in $required) {
   $p = Join-Path $Root $r
@@ -188,6 +197,41 @@ if (($readme -match 'Windows' -or $readme -match '\.ps1') -and ($readme -match '
   Fail "README missing platform script notes"
 }
 
+
+# --- local providers + auto-scan ---
+foreach ($name in @('install-local-providers.ps1', 'install-local-providers.sh')) {
+  $raw = Get-Content (Join-Path $Root "scripts\$name") -Raw
+  if ($raw -match 'providers-src') { Ok "$name copies providers-src" } else { Fail "$name missing providers-src copy logic" }
+}
+foreach ($name in @('auto-scan.ps1', 'auto-scan.sh')) {
+  $raw = Get-Content (Join-Path $Root "scripts\$name") -Raw
+  if ($raw -match 'metadataScan') { Ok "$name uses metadataScan" } else { Fail "$name missing metadataScan" }
+  if ($raw -match 'MV_API_KEY') { Ok "$name reads MV_API_KEY" } else { Fail "$name missing MV_API_KEY" }
+  if ($raw -match 'ApiKey') { Ok "$name sends ApiKey header" } else { Fail "$name missing ApiKey header" }
+}
+foreach ($name in @('watch-inbox.ps1', 'watch-inbox.sh')) {
+  $raw = Get-Content (Join-Path $Root "scripts\$name") -Raw
+  if ($raw -match '_inbox') { Ok "$name watches _inbox" } else { Fail "$name missing _inbox" }
+  if ($raw -match 'auto-scan') { Ok "$name calls auto-scan" } else { Fail "$name missing auto-scan call" }
+}
+
+$arch = Get-Content (Join-Path $Root "docs\architecture.md") -Raw
+if ($arch -match 'compose pull' -and ($arch -match 'vendoring' -or $arch -match '不包含')) {
+  Ok "architecture explains no-vendoring + compose pull"
+} else { Fail "architecture missing upgrade/vendoring notes" }
+if ($arch -match 'asia-catalog') { Ok "architecture mentions asia-catalog" } else { Fail "architecture missing asia-catalog" }
+if ($arch -match 'metadataScan' -or $arch -match '自动扫描' -or $arch -match 'GraphQL') {
+  Ok "architecture mentions auto-scan/GraphQL"
+} else { Fail "architecture missing auto-scan" }
+
+$envex = Get-Content (Join-Path $Root ".env.example") -Raw
+if ($envex -match 'MV_API_KEY') { Ok ".env.example mentions MV_API_KEY" } else { Fail ".env.example missing MV_API_KEY" }
+
+$yml = Get-Content (Join-Path $Root "config\providers-src\asia-catalog\asia-catalog.yml") -Raw
+if ($yml -match 'action:\s*script' -and $yml -match 'asia_catalog\.py') {
+  Ok "asia-catalog.yml is script provider"
+} else { Fail "asia-catalog.yml unexpected" }
+
 # --- setup.md ---
 $setup = Get-Content (Join-Path $Root "docs\setup.md") -Raw
 if ($setup -match '-Profile' -and $setup -match 'first-run-checklist') {
@@ -200,6 +244,15 @@ if ($setup -match '\.ps1' -and $setup -match '\.sh') {
 } else {
   Fail "setup.md missing ps1/sh notes"
 }
+if ($setup -match 'MV_API_KEY' -and $setup -match 'auto-scan') {
+  Ok "setup.md documents API Key + auto-scan"
+} else { Fail "setup.md missing auto-scan section" }
+if ($setup -match 'cron' -or $setup -match '任务计划') {
+  Ok "setup.md has scheduler example"
+} else { Fail "setup.md missing cron/task example" }
+if ($setup -match 'install-local-providers') {
+  Ok "setup.md documents local providers"
+} else { Fail "setup.md missing local providers" }
 
 Write-Host ""
 if ($failed -gt 0) {

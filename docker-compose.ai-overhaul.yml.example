@@ -1,0 +1,84 @@
+# Optional: AI Overhaul backend skeleton for MediaVault / StashLibrary
+# Copy locally; follow upstream install docs before first run.
+# This file is a path/port convention aid — not a full substitute for upstream compose.
+#
+# Docs: docs/plugins.md (AI 分类与同类推荐)
+# Plugin (in Stash): Community stable → AI Overhaul / AIOverhaul
+# Backend: https://github.com/skier233/Stash-AIServer
+# Models:  https://github.com/skier233/media_ai_model_server
+#
+# NVIDIA notes (required for practical speed):
+# - Host needs a working NVIDIA driver + Docker GPU support
+#   (Linux: nvidia-container-toolkit; Windows: Docker Desktop + WSL2 GPU).
+# - GPUs older than roughly GTX 1080 are often unsupported by the model server.
+# - Mount the SAME media paths Stash sees (container paths), or configure
+#   path mapping in the AI plugin / model server as upstream describes.
+# - Do not vendor model weights into this Git repo.
+#
+# Typical flow:
+# 1. Deploy postgres + stash-ai-server per Stash-AIServer README (image tags change).
+# 2. Deploy media_ai_model_server per its Wiki (often build from release zip + models).
+# 3. In Stash, install AI Overhaul and point it at the AI server URL.
+# 4. Smoke-test on a few scenes before full-library jobs.
+# 5. Do NOT install legacy AI Tagger alongside Overhaul.
+
+services:
+  ai-overhaul-postgres:
+    image: pgvector/pgvector:pg16
+    container_name: ai-overhaul-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${AI_SERVER_DB_NAME:-stash_ai_server}
+      POSTGRES_USER: ${AI_SERVER_DB_USER:-stash_ai_server}
+      # Set a strong password in local .env — example default is for first bring-up only.
+      POSTGRES_PASSWORD: ${AI_SERVER_DB_PASSWORD:-change-me}
+    # Prefer NOT publishing 5432 on a shared LAN; remove ports: if only other containers need it.
+    ports:
+      - "${AI_SERVER_DB_PORT:-5432}:5432"
+    volumes:
+      - "${AI_SERVER_PGDATA:-./runtime/ai-overhaul/postgres}:/var/lib/postgresql/data"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  stash-ai-server:
+    # Confirm current tag on ghcr.io/skier233/stash-ai-server before pinning.
+    image: ghcr.io/skier233/stash-ai-server:latest
+    container_name: ai-overhaul-backend
+    restart: unless-stopped
+    depends_on:
+      ai-overhaul-postgres:
+        condition: service_healthy
+    ports:
+      - "${AI_SERVER_HOST_PORT:-4153}:4153"
+    # env_file: ./runtime/ai-overhaul/config.env   # create locally from upstream sample
+    volumes:
+      - "${AI_SERVER_DATA:-./runtime/ai-overhaul/data}:/app/data:rw"
+      - "${AI_SERVER_PLUGINS:-./runtime/ai-overhaul/plugins}:/app/plugins:rw"
+      # Read-only view of Stash data root (config/metadata/library layout per upstream).
+      - "${STASH_ROOT_FOR_AI:-./}:/app/stash:ro"
+
+  # media_ai_model_server is usually built from upstream release (image name often local: ai_model_server).
+  # Uncomment and adjust after you build/pull per https://github.com/skier233/media_ai_model_server
+  #
+  # media-ai-model-server:
+  #   image: ai_model_server
+  #   container_name: media-ai-model-server
+  #   restart: unless-stopped
+  #   environment:
+  #     - NVIDIA_VISIBLE_DEVICES=all
+  #     - NVIDIA_DRIVER_CAPABILITIES=compute,utility,video
+  #   ports:
+  #     - "${MEDIA_AI_HOST_PORT:-8000}:8000"
+  #   volumes:
+  #     - "${MEDIA_AI_APP:-./runtime/media-ai}:/app:rw"
+  #     - "${MV_MEDIA_DL:-./library}:/media:ro"
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: all
+  #             capabilities: [gpu]

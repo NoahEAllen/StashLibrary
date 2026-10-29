@@ -68,3 +68,6 @@ cache/watch-inbox.log
 # local transfer scratch
 _patch/
 
+
+# Local sidecar runtime (Whisparr / AI / Sense copies — keep secrets out of Git)
+runtime/

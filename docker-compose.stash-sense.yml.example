@@ -1,0 +1,41 @@
+# Optional: Stash Sense sidecar for MediaVault / StashLibrary
+# Copy locally; set STASH_URL + STASH_API_KEY in deploy-machine env (never commit secrets).
+#
+# Docs: docs/plugins.md (人脸识别与更深推荐)
+# Upstream: https://github.com/carrotwaxr/stash-sense
+# Install guide: https://carrotwaxr.github.io/stash-sense/installation/
+# Plugin source in Stash: https://carrotwaxr.github.io/stash-sense/plugin/index.yml
+#
+# Prerequisites:
+# - Stash v0.25+ with scene sprite sheets generated
+# - NVIDIA GPU 4GB+ VRAM recommended (CPU works, much slower)
+# - After up: curl http://localhost:6960/health
+# - In plugin Settings: download face DB (~1.5GB) + ONNX models (~220MB)
+
+services:
+  stash-sense:
+    image: carrotwaxr/stash-sense:latest
+    container_name: stash-sense
+    restart: unless-stopped
+    ports:
+      - "${STASH_SENSE_HOST_PORT:-6960}:5000"
+    environment:
+      # From the sidecar container, localhost is NOT the Stash host.
+      # Use host LAN IP, host.docker.internal (Docker Desktop), or a shared compose network alias.
+      - STASH_URL=${STASH_URL:-http://host.docker.internal:9999}
+      - STASH_API_KEY=${STASH_API_KEY:-}
+    volumes:
+      - "${STASH_SENSE_DATA:-./runtime/stash-sense-data}:/data"
+      - stash-sense-insightface:/root/.insightface
+    # GPU (Linux compose / Swarm-style). On Docker Desktop, also enable GPU in settings.
+    # For CPU-only, delete the deploy: block.
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  stash-sense-insightface:

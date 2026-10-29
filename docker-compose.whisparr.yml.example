@@ -1,0 +1,35 @@
+# Optional: Whisparr download stack for MediaVault / StashLibrary
+# Copy to a local name (e.g. docker-compose.whisparr.yml) on the deploy machine.
+# Do NOT merge into the main mediavault compose unless you intend to always run it.
+# Fill paths and API keys locally — never commit real secrets.
+#
+# Docs: docs/plugins.md (找相关资源 / 下载闭环)
+# Whisparr: https://github.com/Whisparr/Whisparr
+# Stasharr userscript: https://github.com/enymawse/stasharr
+# Stasharr Portal (self-host): https://github.com/enymawse/stasharr-portal
+#
+# After up:
+# 1. Open Whisparr UI, add indexers + download client.
+# 2. Set root folder to a host path that MediaVault already scans
+#    (e.g. the same folder as MV_MEDIA_DL or library/_inbox).
+# 3. Point Missing Scenes / Stasharr at this Whisparr URL + API key.
+# 4. Prefer scripts/watch-media (or Missing Scenes scan task) over full Rescan.
+
+services:
+  whisparr:
+    # Prefer current v3+ image tags from upstream / hotio docs when you deploy.
+    image: ghcr.io/hotio/whisparr:v3
+    container_name: whisparr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+      - UMASK=002
+    ports:
+      - "${WHISPARR_HOST_PORT:-6969}:6969"
+    volumes:
+      - "${WHISPARR_CONFIG:-./runtime/whisparr-config}:/config"
+      # Download / library roots — must be reachable by MediaVault scan paths.
+      - "${MV_MEDIA_DL:-./library/_inbox}:/data/downloads"
+      - "${MV_MEDIA_TEMP:-./library/_inbox}:/data/temp"

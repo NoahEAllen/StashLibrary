@@ -67,7 +67,8 @@ API Key 写入 `.env` 的 `MV_API_KEY` 后，可用 `scripts/auto-scan` / `watch
 
 ### 插件与增量监视
 
-- 推荐 Plugins：[docs/plugins.md](docs/plugins.md) / [presets/recommended-plugins.md](presets/recommended-plugins.md)
+- 推荐 Plugins（浏览 / 同类 / 分类 / 找源下载）：[docs/plugins.md](docs/plugins.md) / [presets/recommended-plugins.md](presets/recommended-plugins.md)
+- 可选旁路 compose 示例：`docker-compose.whisparr.yml.example`、`docker-compose.ai-overhaul.yml.example`、`docker-compose.stash-sense.yml.example`（不默认启动；勿提交密钥）
 - 三目录监视：`scripts/watch-media`（配合 `auto-scan`，默认不 Rescan）
 - 番号资料站链接：`scripts/code-search-links`
 - 演员待寻片单：[docs/wishlist.md](docs/wishlist.md)
@@ -105,6 +106,7 @@ start（ensure .env + up -d）
 | [docs/setup.md](docs/setup.md) | 部署与双库配置（Windows / Linux） |
 | [docs/naming.md](docs/naming.md) | 文件 / 目录命名规范 |
 | [docs/providers.md](docs/providers.md) | 精选 providers（模糊检索词） |
+| [docs/plugins.md](docs/plugins.md) | Plugins：浏览 / 同类 / 分类 / 缺片下载 / AI Overhaul |
 | [docs/git-publish.md](docs/git-publish.md) | 推私有 GitHub |
 
 ## 常用命令

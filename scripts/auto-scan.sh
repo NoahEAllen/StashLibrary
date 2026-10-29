@@ -9,14 +9,16 @@ GRAPHQL_URL=""
 API_KEY=""
 PATHS=""
 RESCAN=0
+MIN_MOD_TIME=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --Paths|-Paths) PATHS="${2:-}"; shift 2 ;;
     --Rescan|-Rescan) RESCAN=1; shift ;;
+    --MinModTime|-MinModTime) MIN_MOD_TIME="${2:-}"; shift 2 ;;
     --Url|-Url) GRAPHQL_URL="${2:-}"; shift 2 ;;
     -h|--help)
-      echo "Usage: $0 [--Paths p1,p2] [--Rescan] [--Url URL]"
+      echo "Usage: $0 [--Paths p1,p2] [--Rescan] [--MinModTime <4h|RFC3339>] [--Url URL]"
       exit 0 ;;
     *) echo "Unknown arg: $1" >&2; exit 1 ;;
   esac
@@ -52,21 +54,24 @@ if [[ -z "$API_KEY" ]]; then
 fi
 
 # Build GraphQL JSON with python for safe escaping
-PAYLOAD="$(PATHS_ARG="$PATHS" RESCAN_ARG="$RESCAN" python3 - <<'PY'
+PAYLOAD="$(PATHS_ARG="$PATHS" RESCAN_ARG="$RESCAN" MIN_MOD_TIME_ARG="$MIN_MOD_TIME" python3 - <<'PY'
 import json, os
 paths_raw = os.environ.get("PATHS_ARG", "").strip()
 rescan = os.environ.get("RESCAN_ARG", "0") == "1"
+min_mod = os.environ.get("MIN_MOD_TIME_ARG", "").strip()
 inp = {}
 if paths_raw:
     inp["paths"] = [p.strip() for p in paths_raw.split(",") if p.strip()]
 if rescan:
     inp["rescan"] = True
+if min_mod:
+    inp["filter"] = {"minModTime": min_mod}
 query = "mutation MetadataScan($input: ScanMetadataInput!) { metadataScan(input: $input) }"
 print(json.dumps({"query": query, "variables": {"input": inp}}))
 PY
 )"
 
-echo "POST $GRAPHQL_URL  (paths=${PATHS:-<all>} rescan=$RESCAN)"
+echo "POST $GRAPHQL_URL  (paths=${PATHS:-<all>} rescan=$RESCAN minModTime=${MIN_MOD_TIME:--})"
 HTTP_CODE=0
 RESP="$(curl -sS -w '\n%{http_code}' -X POST "$GRAPHQL_URL" \
   -H "Content-Type: application/json" \

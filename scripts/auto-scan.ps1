@@ -7,6 +7,7 @@
 param(
   [string]$Paths = "",
   [switch]$Rescan,
+  [string]$MinModTime = "",
   [string]$Url = ""
 )
 $ErrorActionPreference = "Stop"
@@ -49,6 +50,9 @@ if ($Paths) {
   $inputObj["paths"] = @($Paths.Split(",") | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 }
 if ($Rescan) { $inputObj["rescan"] = $true }
+if ($MinModTime) {
+  $inputObj["filter"] = @{ minModTime = $MinModTime }
+}
 
 $bodyObj = @{
   query = "mutation MetadataScan(`$input: ScanMetadataInput!) { metadataScan(input: `$input) }"
@@ -56,7 +60,7 @@ $bodyObj = @{
 }
 $json = $bodyObj | ConvertTo-Json -Depth 6 -Compress
 
-Write-Host "POST $graphql  (paths=$(if ($Paths) { $Paths } else { '<all>' }) rescan=$([bool]$Rescan))"
+Write-Host "POST $graphql  (paths=$(if ($Paths) { $Paths } else { '<all>' }) rescan=$([bool]$Rescan) minModTime=$(if ($MinModTime) { $MinModTime } else { '-' }))"
 try {
   $resp = Invoke-RestMethod -Method Post -Uri $graphql -ContentType "application/json" `
     -Headers @{ ApiKey = $apiKey } -Body $json

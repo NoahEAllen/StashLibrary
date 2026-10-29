@@ -64,3 +64,7 @@ Desktop.ini
 cache/_inbox-watch.state
 cache/auto-scan.log
 cache/watch-inbox.log
+
+# local transfer scratch
+_patch/
+

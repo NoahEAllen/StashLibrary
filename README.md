@@ -63,6 +63,15 @@ chmod +x scripts/*.sh
 
 API Key 写入 `.env` 的 `MV_API_KEY` 后，可用 `scripts/auto-scan` / `watch-inbox` 触发 GraphQL `metadataScan`（见 setup 文档）。本地编号骨架：`install-local-providers`。
 
+
+
+### 插件与增量监视
+
+- 推荐 Plugins：[docs/plugins.md](docs/plugins.md) / [presets/recommended-plugins.md](presets/recommended-plugins.md)
+- 三目录监视：`scripts/watch-media`（配合 `auto-scan`，默认不 Rescan）
+- 番号资料站链接：`scripts/code-search-links`
+- 演员待寻片单：[docs/wishlist.md](docs/wishlist.md)
+
 ## 日常更新
 
 推荐一键：

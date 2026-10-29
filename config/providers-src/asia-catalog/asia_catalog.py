@@ -147,6 +147,24 @@ def cmd_url(data: Any) -> Dict[str, Any]:
     return scene_stub(code, extra_url=url or None)
 
 
+
+def cmd_links(data):
+    """CLI helper: return {code, urls} for code-search-links scripts."""
+    name = ""
+    if isinstance(data, dict):
+        name = str(data.get("name") or data.get("title") or data.get("query") or "")
+        if not name:
+            name = str(data.get("path") or data.get("filename") or "")
+    elif isinstance(data, str):
+        name = data
+    code = normalize_code(name)
+    if not code and isinstance(data, dict):
+        code = extract_from_scene(data)
+    if not code:
+        _log("no catalog code in links query: %r" % (name,))
+        return {}
+    return {"code": code, "urls": fill_urls(code), "title": code}
+
 def main() -> None:
     mode = sys.argv[1] if len(sys.argv) > 1 else "search"
     data = read_input()
@@ -156,6 +174,12 @@ def main() -> None:
         print(json.dumps(cmd_query(data), ensure_ascii=False))
     elif mode == "url":
         print(json.dumps(cmd_url(data), ensure_ascii=False))
+    elif mode == "links":
+        out = cmd_links(data)
+        if not out:
+            print("{}")
+            sys.exit(1)
+        print(json.dumps(out, ensure_ascii=False))
     else:
         _log(f"unknown mode: {mode}")
         print("{}")

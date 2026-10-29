@@ -216,3 +216,36 @@ docker compose pull
 ## 改端口
 
 编辑 `.env` 中 `MV_HOST_PORT`，再执行对应平台的 `start` 脚本。
+
+## 插件（Plugins）
+
+与 Metadata Providers 不同。安装说明见 [plugins.md](plugins.md)；勾选表见 [`presets/recommended-plugins.md`](../presets/recommended-plugins.md)。
+
+建议优先：`File Monitor`、`Stash Notifications`、`Scene Marker Tags to Scene`。  
+可选较重：`AI Tagger`、第三方 renamer（慎用，见 plugins 文档）。
+
+## 增量监视三目录
+
+配置 `.env` 中 `MV_MEDIA_TEMP` / `MV_MEDIA_CLOUD` / `MV_MEDIA_DL` 后：
+
+```powershell
+.\scripts\watch-media.ps1
+.\scripts\watch-media.ps1 -IncludeInbox -Once
+```
+
+```bash
+./scripts/watch-media.sh
+./scripts/watch-media.sh --IncludeInbox --Once
+```
+
+仍可用 `watch-inbox` 只盯 `_inbox`。`auto-scan` 支持 `-MinModTime "<24h"`（或 `--MinModTime`）只扫近期修改的文件。
+
+## 番号搜索链接与 Wish list
+
+```powershell
+.\scripts\code-search-links.ps1 "ABCD-123"
+.\scripts\wishlist-list.ps1
+```
+
+说明：[wishlist.md](wishlist.md)。
+

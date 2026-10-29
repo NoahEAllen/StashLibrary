@@ -1,0 +1,3 @@
+performer,title_or_code,notes,status,source_url
+Example Performer,ABCD-123,sample row — replace me,pending,
+Example Performer,Some Official Title,from catalog page,pending,https://example.com/

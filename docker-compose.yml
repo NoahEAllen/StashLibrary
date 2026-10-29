@@ -23,3 +23,7 @@ services:
       - ./cache:/cache
       - ./blobs:/blobs
       - ./generated:/generated
+      # Host media roots (machine-specific; set in .env). Mixed image/video OK.
+      - ${MV_MEDIA_TEMP}:/data/primary/sources/temp
+      - ${MV_MEDIA_CLOUD}:/data/primary/sources/cloud
+      - ${MV_MEDIA_DL}:/data/alternate/sources/downloads
